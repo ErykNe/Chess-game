@@ -1,0 +1,39 @@
+#chessBoard {
+    width: 900px;
+    height: 900px;
+    display:flex;
+    flex-wrap: wrap;
+    align-content: center;
+    background-color: gray;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -63.5%);
+    box-shadow: 0 0 6px 4px #616467;
+    border: 1px solid #4a4c4e;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    animation: slideIn 0.5s ease-in-out;
+}
+#pushedGrids {
+    background-color: white;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    width: 112.5px;
+    height: 112.5px;
+}
+@keyframes slideIn {
+    from {
+      top: -900px; 
+      opacity: 0;
+    }
+    to {
+      top: 50%;
+      opacity: 1;
+    }
+  }
