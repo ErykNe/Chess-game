@@ -18,22 +18,36 @@
     user-select: none;
     animation: slideIn 0.5s ease-in-out;
 }
-#pushedGrids {
-    background-color: white;
-    margin-top: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    margin-right: 0;
-    width: 112.5px;
-    height: 112.5px;
+.pushedGrids {
+  background-color: white;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  width: 112.5px;
+  height: 112.5px;
 }
 @keyframes slideIn {
-    from {
-      top: -900px; 
-      opacity: 0;
-    }
-    to {
-      top: 50%;
-      opacity: 1;
-    }
+  from {
+    top: -900px; 
+    opacity: 0;
   }
+  to {
+    top: 50%;
+    opacity: 1;
+  }
+}
+.chessPiece {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  width: 112.5px;
+  height: 112.5px;
+  size: 112.5px 112.5px;
+  -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
