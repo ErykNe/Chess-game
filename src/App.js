@@ -4,7 +4,7 @@ import StartApp from './components/StartApp.tsx';
 function App() {
   return (
     <div className="ChessApp">
-      <div class="board">
+      <div className="board">
         <StartApp></StartApp>
       </div>
     </div>

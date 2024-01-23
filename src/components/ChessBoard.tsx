@@ -1,9 +1,46 @@
 import React from 'react';
 import './ChessBoard.css';
 
-const verticalAxis = ["1","2","3","4","5","6","7","8"]
-const horizontalAxis = ["a","b","c","d","e","f","g","h"]
+const verticalAxis = [1,2,3,4,5,6,7,8]
+const horizontalAxis = ['a','b','c','d','e','f','g','h']
 
+let isPieceActive: boolean = false
+
+function grabPiece(e: React.MouseEvent) {
+    const piece = e.target as HTMLElement
+    if (piece.tagName.toLowerCase() === 'img' && isPieceActive == false) {
+        console.log("Piece grabbed!")  
+        isPieceActive = true
+        const piece = e.target as HTMLElement
+        const x = e.clientX - 276.5
+        const y = e.clientY - 230
+        piece.style.position = "absolute"
+        piece.style.left = `${x}px`
+        piece.style.top = `${y}px`
+    }
+}
+function movePiece(e: React.MouseEvent) {
+    const piece = e.target as HTMLElement
+    if (piece.tagName.toLowerCase() === 'img' && isPieceActive == true) {
+        const piece = e.target as HTMLElement
+        const x = e.clientX - 276.5
+        const y = e.clientY - 230
+        piece.style.position = "absolute"
+        piece.style.left = `${x}px`
+        piece.style.top = `${y}px`
+    }
+}
+function dropPiece(e: React.MouseEvent) {
+    if (isPieceActive) {
+      const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY);
+      const piece = e.target as HTMLElement
+      if (pushedGridsElements.some(element => element.className == "pushedGrids") && piece.className == "chessPiece") {
+        console.log("Position changed!");
+        changePiecePosition(e);
+      }
+      isPieceActive = false;
+    }
+  }
 export default function ChessBoard(){
     let board : React.JSX.Element [] = ChessGrids()
     LoadPieces(board)
@@ -16,7 +53,14 @@ export function ChessGrids(){
         for(let i = 0; i < horizontalAxis.length; i++){
             const divId = `grid${horizontalAxis[i]}${verticalAxis[j]}`;
             board.push(
-                <div className ="pushedGrids" key={divId} style={{ backgroundColor: i%2!=0 && j%2==0 || i%2==0 && j%2!=0 ? 'white' : 'initial' }}>
+                <div 
+                className ="pushedGrids" 
+                id={divId} 
+                key={divId} 
+                style={{ backgroundColor: i%2!=0 && j%2==0 || i%2==0 && j%2!=0 ? 'white' : 'initial' }} 
+                onMouseDown={e => grabPiece(e)} 
+                onMouseMove={e => movePiece(e)}
+                onMouseUp={(e) => dropPiece(e)}>
                 </div>
             )
         }
@@ -86,7 +130,14 @@ export function LoadPieces(board: React.JSX.Element []){
                 PieceName = "BlackKing"
                 sauce = require('../assets/Chess_kdt45.svg.png')
             }
-            let ChessPiece = <img className="chessPiece" key = {PieceName} src={sauce} style={{display: sauce == "" ? 'none' : ''}}></img>
+            let ChessPiece = <img className="chessPiece" id={PieceName}key={PieceName} src={sauce} style={{display: sauce == "" ? 'none' : ''}}></img>
             board[i] = React.cloneElement(board[i], board[i].props.children, ChessPiece);
     }
 }
+export function changePiecePosition(e: React.MouseEvent) {
+    const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY);
+    const chessPieceElements = pushedGridsElements.filter(element => element.className === "chessPiece");
+    if (chessPieceElements.length > 1) {
+      console.log("There are at least two pieces!");
+    }
+  }
