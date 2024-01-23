@@ -4,41 +4,47 @@ import './ChessBoard.css';
 const verticalAxis = [1,2,3,4,5,6,7,8]
 const horizontalAxis = ['a','b','c','d','e','f','g','h']
 
-let isPieceActive: boolean = false
-
+let PieceActive: HTMLElement | null = null
 function grabPiece(e: React.MouseEvent) {
     const piece = e.target as HTMLElement
-    if (piece.tagName.toLowerCase() === 'img' && isPieceActive == false) {
-        console.log("Piece grabbed!")  
-        isPieceActive = true
-        const piece = e.target as HTMLElement
-        const x = e.clientX - 276.5
-        const y = e.clientY - 230
-        piece.style.position = "absolute"
-        piece.style.left = `${x}px`
-        piece.style.top = `${y}px`
+    console.log(piece)
+    const chessBoard = document.getElementById('chessBoard')
+    console.log(chessBoard)
+    if (piece.tagName.toLowerCase() === 'img' && PieceActive == null) {
+        PieceActive = piece
+        if (chessBoard) {
+            const boardRect = chessBoard.getBoundingClientRect();
+            const xPercentage = ((e.clientX - boardRect.left - 56.25) / boardRect.width) * 100
+            const yPercentage = ((e.clientY - boardRect.top - 56.25) / boardRect.height) * 100
+            piece.style.position = 'absolute'
+            piece.style.left = `${xPercentage}%`
+            piece.style.top = `${yPercentage}%`
+        }
     }
 }
 function movePiece(e: React.MouseEvent) {
     const piece = e.target as HTMLElement
-    if (piece.tagName.toLowerCase() === 'img' && isPieceActive == true) {
-        const piece = e.target as HTMLElement
-        const x = e.clientX - 276.5
-        const y = e.clientY - 230
-        piece.style.position = "absolute"
-        piece.style.left = `${x}px`
-        piece.style.top = `${y}px`
+    const chessBoard = document.getElementById('chessBoard')
+    if (piece.tagName.toLowerCase() === 'img' && PieceActive == piece) {
+        if (chessBoard) {
+          const boardRect = chessBoard.getBoundingClientRect();
+          const xPercentage = ((e.clientX - boardRect.left - 56.25) / boardRect.width) * 100
+          const yPercentage = ((e.clientY - boardRect.top - 56.25) / boardRect.height) * 100
+          piece.style.position = 'absolute'
+          piece.style.left = `${xPercentage}%`
+          piece.style.top = `${yPercentage}%`
+        }
     }
 }
 function dropPiece(e: React.MouseEvent) {
-    if (isPieceActive) {
+    if (PieceActive = e.target as HTMLElement) {
       const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY);
       const piece = e.target as HTMLElement
       if (pushedGridsElements.some(element => element.className == "pushedGrids") && piece.className == "chessPiece") {
         console.log("Position changed!");
         changePiecePosition(e);
       }
-      isPieceActive = false;
+      PieceActive = null;
     }
   }
 export default function ChessBoard(){
@@ -57,7 +63,7 @@ export function ChessGrids(){
                 className ="pushedGrids" 
                 id={divId} 
                 key={divId} 
-                style={{ backgroundColor: i%2!=0 && j%2==0 || i%2==0 && j%2!=0 ? 'white' : 'initial' }} 
+                style={{ backgroundColor: i%2!=0 && j%2===0 || i%2===0 && j%2!=0 ? 'white' : 'initial' }} 
                 onMouseDown={e => grabPiece(e)} 
                 onMouseMove={e => movePiece(e)}
                 onMouseUp={(e) => dropPiece(e)}>
@@ -72,7 +78,7 @@ export function LoadPieces(board: React.JSX.Element []){
     for(let i = 0; i < board.length; i++){
         indexHorizontal++
         let PieceName = "none"
-            if(i % 8 == 0){
+            if(i % 8 === 0){
                 indexHorizontal = 0
             }
             let sauce = ""
@@ -130,14 +136,27 @@ export function LoadPieces(board: React.JSX.Element []){
                 PieceName = "BlackKing"
                 sauce = require('../assets/Chess_kdt45.svg.png')
             }
-            let ChessPiece = <img className="chessPiece" id={PieceName}key={PieceName} src={sauce} style={{display: sauce == "" ? 'none' : ''}}></img>
-            board[i] = React.cloneElement(board[i], board[i].props.children, ChessPiece);
+            let ChessPiece = <img className="chessPiece" id={PieceName}key={PieceName} src={sauce} style={{display: sauce === "" ? 'none' : ''}}></img>
+            board[i] = React.cloneElement(board[i], board[i].props.children, ChessPiece)
     }
 }
 export function changePiecePosition(e: React.MouseEvent) {
-    const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY);
-    const chessPieceElements = pushedGridsElements.filter(element => element.className === "chessPiece");
+    const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY)
+    console.log(pushedGridsElements);
+  
+    const chessPieceElements = pushedGridsElements.filter(element => element.classList.contains("chessPiece"))
+  
     if (chessPieceElements.length > 1) {
-      console.log("There are at least two pieces!");
+      console.log("There are at least two pieces!")
     }
+    const childElement = pushedGridsElements[0] as HTMLElement
+      console.log(childElement)
+      const newDiv = pushedGridsElements[1] as HTMLElement
+      console.log(newDiv)
+      childElement.style.width = `${newDiv.clientWidth}px`
+      childElement.style.height = `${newDiv.clientHeight}px`
+      childElement.style.position = 'absolute'
+      childElement.style.top = `${newDiv.offsetTop}px`
+      childElement.style.left = `${newDiv.offsetLeft}px`
+
   }

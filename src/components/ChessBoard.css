@@ -38,10 +38,6 @@
   }
 }
 .chessPiece {
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: 0;
-  margin-right: 0;
   width: 112.5px;
   height: 112.5px;
   size: 112.5px 112.5px;
