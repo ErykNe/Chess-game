@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import './ChessBoard.css';
 
 const verticalAxis = [1,2,3,4,5,6,7,8]
 const horizontalAxis = ['a','b','c','d','e','f','g','h']
-
+let board : React.JSX.Element [] = ChessGrids()
+    LoadPieces(board)
 let PieceActive: HTMLElement | null = null
 function grabPiece(e: React.MouseEvent) {
     const piece = e.target as HTMLElement
@@ -34,7 +35,7 @@ function movePiece(e: React.MouseEvent) {
           piece.style.left = `${xPercentage}%`
           piece.style.top = `${yPercentage}%`
         }
-    }
+    } 
 }
 function dropPiece(e: React.MouseEvent) {
     if (PieceActive = e.target as HTMLElement) {
@@ -48,8 +49,6 @@ function dropPiece(e: React.MouseEvent) {
     }
   }
 export default function ChessBoard(){
-    let board : React.JSX.Element [] = ChessGrids()
-    LoadPieces(board)
     return <div id="chessBoard">{board}</div>
 }
 export function ChessGrids(){
@@ -142,21 +141,44 @@ export function LoadPieces(board: React.JSX.Element []){
 }
 export function changePiecePosition(e: React.MouseEvent) {
     const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY)
-    console.log(pushedGridsElements);
-  
+
     const chessPieceElements = pushedGridsElements.filter(element => element.classList.contains("chessPiece"))
-  
+
     if (chessPieceElements.length > 1) {
-      console.log("There are at least two pieces!")
+        //find free field, clode the img thing and replace it with piece that is taken  
+        console.log("There are at least two pieces!")
     }
     const childElement = pushedGridsElements[0] as HTMLElement
-      console.log(childElement)
-      const newDiv = pushedGridsElements[1] as HTMLElement
-      console.log(newDiv)
-      childElement.style.width = `${newDiv.clientWidth}px`
-      childElement.style.height = `${newDiv.clientHeight}px`
-      childElement.style.position = 'absolute'
-      childElement.style.top = `${newDiv.offsetTop}px`
-      childElement.style.left = `${newDiv.offsetLeft}px`
+    const secondChildElement = pushedGridsElements[1].firstChild as HTMLElement
+    const newDiv = pushedGridsElements[1] as HTMLElement
+    const oldDiv = pushedGridsElements[0].parentElement as HTMLElement
+    console.log(newDiv)
+    console.log(oldDiv)
 
-  }
+    // Ustawia nowe pozycje dla childElement
+    childElement.style.width = `${newDiv.clientWidth}px`
+    childElement.style.height = `${newDiv.clientHeight}px`
+    childElement.style.top = `${newDiv.offsetTop}px`
+    childElement.style.left = `${newDiv.offsetLeft}px`
+    secondChildElement.style.animation = 'none'
+    childElement.style.animation = 'none'
+    childElement.style.position = ''
+
+    // Przenieś childElement pod newDiv
+    if (oldDiv && newDiv) {
+        oldDiv.removeChild(childElement)
+        newDiv.appendChild(childElement)
+        newDiv.removeChild(secondChildElement)
+        oldDiv.appendChild(secondChildElement)
+    }
+
+    let index1 = board.findIndex(elem => elem.key === newDiv.id)
+    let index2 = board.findIndex(elem => elem.key === oldDiv.id)
+    console.log(index1)
+    console.log(index2)
+    if (index1 !== -1 && index2 !== -1) {
+        const temp = board[index1].props.children
+        board[index1] = React.cloneElement(board[index1], { children: board[index2].props.children })
+        board[index2] = React.cloneElement(board[index2], { children: temp })
+    }    
+}
