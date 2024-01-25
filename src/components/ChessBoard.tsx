@@ -155,12 +155,15 @@ export function changePiecePosition(e: React.MouseEvent) {
             return
         } else {
             takePiece(secondChildElement, newDiv)
+            secondChildElement = newDiv.firstChild as HTMLElement
         }
     } 
     alignPiece(childElement, secondChildElement, newDiv)
     if (oldDiv && newDiv) {
         console.log(newDiv)
         console.log(oldDiv)
+        console.log(secondChildElement)
+        console.log(childElement)
         newDiv.removeChild(secondChildElement)
         oldDiv.appendChild(secondChildElement)
         oldDiv.removeChild(childElement)
@@ -187,10 +190,13 @@ export function takePiece(taken: HTMLElement, newDiv: HTMLElement) {
     if (hiddenPiece) {
         let index = board.findIndex(elem => elem.key === newDiv.id)
         const clonedHiddenPiece = cloneEmptyField(hiddenPiece);
-        newDiv.removeChild(taken);
         const domNode = convertJsxToDomNode(clonedHiddenPiece);
+        let domElement = domNode as HTMLElement
+        domElement.style.display = 'none'
+        domElement.id = 'none'
+        board[index] = React.cloneElement(board[index], { children: domNode, taken})
+        newDiv.removeChild(taken);
         newDiv.appendChild(domNode);
-        board[index] = React.cloneElement(board[index], { children: domNode })//problem is somewhere there. You also have to update board array, probably
     }
 }
 
