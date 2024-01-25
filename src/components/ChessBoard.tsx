@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './ChessBoard.css';
+import ReactDOM from 'react-dom';
 
 const verticalAxis = [1,2,3,4,5,6,7,8]
 const horizontalAxis = ['a','b','c','d','e','f','g','h']
@@ -8,9 +9,7 @@ let board : React.JSX.Element [] = ChessGrids()
 let PieceActive: HTMLElement | null = null
 function grabPiece(e: React.MouseEvent) {
     const piece = e.target as HTMLElement
-    console.log(piece)
     const chessBoard = document.getElementById('chessBoard')
-    console.log(chessBoard)
     if (piece.tagName.toLowerCase() === 'img' && PieceActive == null) {
         PieceActive = piece
         if (chessBoard) {
@@ -42,8 +41,9 @@ function dropPiece(e: React.MouseEvent) {
       const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY);
       const piece = e.target as HTMLElement
       if (pushedGridsElements.some(element => element.className == "pushedGrids") && piece.className == "chessPiece") {
-        console.log("Position changed!");
-        changePiecePosition(e);
+        changePiecePosition(e)
+      } else if (piece.className == "chessPiece") {
+        movePieceBack(piece)
       }
       PieceActive = null;
     }
@@ -52,11 +52,10 @@ export default function ChessBoard(){
     return <div id="chessBoard">{board}</div>
 }
 export function ChessGrids(){
-    console.log("ChessGrids function called");
     let board : React.JSX.Element [] = []
     for(let j = verticalAxis.length - 1; j >= 0; j--) {
         for(let i = 0; i < horizontalAxis.length; i++){
-            const divId = `grid${horizontalAxis[i]}${verticalAxis[j]}`;
+            const divId = `grid${horizontalAxis[i]}${verticalAxis[j]}`
             board.push(
                 <div 
                 className ="pushedGrids" 
@@ -141,44 +140,95 @@ export function LoadPieces(board: React.JSX.Element []){
 }
 export function changePiecePosition(e: React.MouseEvent) {
     const pushedGridsElements = document.elementsFromPoint(e.clientX, e.clientY)
-
     const chessPieceElements = pushedGridsElements.filter(element => element.classList.contains("chessPiece"))
-
-    if (chessPieceElements.length > 1) {
-        //find free field, clode the img thing and replace it with piece that is taken  
-        console.log("There are at least two pieces!")
-    }
+    let newDiv = pushedGridsElements[1] as HTMLElement
     const childElement = pushedGridsElements[0] as HTMLElement
-    const secondChildElement = pushedGridsElements[1].firstChild as HTMLElement
-    const newDiv = pushedGridsElements[1] as HTMLElement
-    const oldDiv = pushedGridsElements[0].parentElement as HTMLElement
-    console.log(newDiv)
-    console.log(oldDiv)
-
-    // Ustawia nowe pozycje dla childElement
-    childElement.style.width = `${newDiv.clientWidth}px`
-    childElement.style.height = `${newDiv.clientHeight}px`
-    childElement.style.top = `${newDiv.offsetTop}px`
-    childElement.style.left = `${newDiv.offsetLeft}px`
-    secondChildElement.style.animation = 'none'
-    childElement.style.animation = 'none'
-    childElement.style.position = ''
-
-    // Przenieś childElement pod newDiv
+    let secondChildElement = pushedGridsElements[1].firstChild as HTMLElement
+    let oldDiv = pushedGridsElements[0].parentElement as HTMLElement
+    if (chessPieceElements.length > 1) {
+        secondChildElement = pushedGridsElements[1] as HTMLElement
+        newDiv = pushedGridsElements[2] as HTMLElement
+        oldDiv = pushedGridsElements[0].parentElement as HTMLElement
+        if(secondChildElement.id.includes("White") && childElement.id.includes("White")
+        || secondChildElement.id.includes("Black") && childElement.id.includes("Black")){
+            movePieceBack(childElement)
+            return
+        } else {
+            takePiece(secondChildElement, newDiv)
+        }
+    } 
+    alignPiece(childElement, secondChildElement, newDiv)
     if (oldDiv && newDiv) {
-        oldDiv.removeChild(childElement)
-        newDiv.appendChild(childElement)
+        console.log(newDiv)
+        console.log(oldDiv)
         newDiv.removeChild(secondChildElement)
         oldDiv.appendChild(secondChildElement)
+        oldDiv.removeChild(childElement)
+        newDiv.appendChild(childElement)
     }
-
     let index1 = board.findIndex(elem => elem.key === newDiv.id)
     let index2 = board.findIndex(elem => elem.key === oldDiv.id)
-    console.log(index1)
-    console.log(index2)
     if (index1 !== -1 && index2 !== -1) {
         const temp = board[index1].props.children
         board[index1] = React.cloneElement(board[index1], { children: board[index2].props.children })
         board[index2] = React.cloneElement(board[index2], { children: temp })
     }    
+}
+export function movePieceBack(piece: HTMLElement){
+    piece.style.width = `${piece.parentElement?.clientWidth}px`
+    piece.style.height = `${piece.parentElement?.clientHeight}px`
+    piece.style.top = `${piece.parentElement?.offsetTop}px`
+    piece.style.left = `${piece.parentElement?.offsetLeft}px`
+    piece.style.animation = 'none'
+    piece.style.position = ''
+}
+export function takePiece(taken: HTMLElement, newDiv: HTMLElement) {
+    const hiddenPiece = findEmptyField();
+    if (hiddenPiece) {
+        let index = board.findIndex(elem => elem.key === newDiv.id)
+        const clonedHiddenPiece = cloneEmptyField(hiddenPiece);
+        newDiv.removeChild(taken);
+        const domNode = convertJsxToDomNode(clonedHiddenPiece);
+        newDiv.appendChild(domNode);
+        board[index] = React.cloneElement(board[index], { children: domNode })//problem is somewhere there. You also have to update board array, probably
+    }
+}
+
+function findEmptyField(): HTMLElement | null {
+    const hiddenPieces = document.querySelectorAll('.chessPiece[style*="display: none"]');
+    const hiddenPiecesArray = Array.from(hiddenPieces);
+    if (hiddenPiecesArray.length > 0) {
+        const randomIndex = Math.floor(Math.random() * hiddenPiecesArray.length);
+        const hiddenPiece = hiddenPiecesArray[randomIndex] as HTMLElement;
+        return hiddenPiece;
+    }
+    return null;
+}
+
+function cloneEmptyField(hiddenPiece: HTMLElement): JSX.Element {
+    const clonedHiddenPiece = React.createElement(
+        hiddenPiece.tagName.toLowerCase(),
+        {
+            key: hiddenPiece.id,
+            className: 'chessPiece',
+            style: { display: '' },
+        },
+    );
+
+    return clonedHiddenPiece;
+}
+
+function convertJsxToDomNode(jsxElement: JSX.Element): Node {
+    const container = document.createElement('div');
+    ReactDOM.render(jsxElement, container);
+    return container.firstChild as Node;
+}
+export function alignPiece(childElement: HTMLElement, secondChildElement: HTMLElement, newDiv: HTMLElement){
+    childElement.style.width = `${newDiv.clientWidth}px`
+    childElement.style.height = `${newDiv.clientHeight}px`
+    childElement.style.top = `${newDiv.offsetTop}px`
+    childElement.style.left = `${newDiv.offsetLeft}px`
+    childElement.style.animation = 'none'
+    childElement.style.position = ''
+    secondChildElement.style.animation = 'none'
 }
