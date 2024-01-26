@@ -1,11 +1,40 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import './ChessBoard.css';
 import ReactDOM from 'react-dom';
+import { useSpring, animated } from 'react-spring';
 
 const verticalAxis = [1,2,3,4,5,6,7,8]
 const horizontalAxis = ['a','b','c','d','e','f','g','h']
 let board : React.JSX.Element [] = ChessGrids()
     LoadPieces(board)
+
+    function ChessPiece({ id, sauce }: { id: string; sauce: string }): JSX.Element {
+        const [animation, setAnimation] = useSpring(() => ({
+          opacity: 0,
+          transform: 'scale(1.4)',
+        }));
+      
+        useEffect(() => {
+          setAnimation({
+            opacity: 1,
+            transform: 'scale(1)',
+            reset: true,
+          });
+        }, [setAnimation]);
+      
+        return (
+          <animated.img
+            className="chessPiece"
+            id={id}
+            key={id}
+            src={sauce}
+            style={{
+              display: sauce === '' ? 'none' : '',
+              ...animation,
+            }}
+          ></animated.img>
+        );
+      }    
 let PieceActive: HTMLElement | null = null
 function grabPiece(e: React.MouseEvent) {
     const piece = e.target as HTMLElement
@@ -71,6 +100,7 @@ export function ChessGrids(){
     }
     return board;
 }
+
 export function LoadPieces(board: React.JSX.Element []){
     let indexHorizontal = 0
     for(let i = 0; i < board.length; i++){
@@ -134,7 +164,18 @@ export function LoadPieces(board: React.JSX.Element []){
                 PieceName = "BlackKing"
                 sauce = require('../assets/Chess_kdt45.svg.png')
             }
-            let ChessPiece = <img className="chessPiece" id={PieceName}key={PieceName} src={sauce} style={{display: sauce === "" ? 'none' : ''}}></img>
+            let ChessPiece = (
+                <img
+                  className={`chessPiece ${PieceName} placepawn-animation`}
+                  id={PieceName}
+                  key={PieceName}
+                  src={sauce}
+                  style={{
+                    display: sauce === '' ? 'none' : '',
+                  }}
+                />
+              );
+          
             board[i] = React.cloneElement(board[i], board[i].props.children, ChessPiece)
     }
 }
@@ -176,6 +217,7 @@ export function changePiecePosition(e: React.MouseEvent) {
         board[index1] = React.cloneElement(board[index1], { children: board[index2].props.children })
         board[index2] = React.cloneElement(board[index2], { children: temp })
     }    
+    console.log("Test")
 }
 export function movePieceBack(piece: HTMLElement){
     piece.style.width = `${piece.parentElement?.clientWidth}px`
