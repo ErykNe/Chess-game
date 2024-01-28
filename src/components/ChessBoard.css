@@ -27,17 +27,6 @@
   width: 112.5px;
   height: 112.5px;
 }
-.chessPiece {
-  width: 112.5px;
-  height: 112.5px;
-  size: 112.5px 112.5px;
-  -webkit-user-select: none;
-  -webkit-user-drag: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  animation: none;
-}
 @keyframes slideIn {
   from {
     top: -900px; 
@@ -48,18 +37,13 @@
     opacity: 1;
   }
 }
-@keyframes placepawn {
-  0% {
-    opacity: 0;
-    transform: scale(1.4);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.placepawn-animation {
-  animation: placepawn 0.75s cubic-bezier(0.68, -0.6, 0.32, 1.6) 0s 1 normal none;
+.chessPiece {
+  width: 112.5px;
+  height: 112.5px;
+  size: 112.5px 112.5px;
+  -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
