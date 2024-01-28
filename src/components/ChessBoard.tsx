@@ -110,7 +110,7 @@ export function changePiecePosition(e: React.MouseEvent) {
     let secondChildElement = pushedGridsElements[1].firstChild as HTMLElement
     let oldDiv = pushedGridsElements[0].parentElement as HTMLElement
     const referee = new MoveLegalityTest
-    referee.getPieceType(childElement.id)
+    referee.getPiece(childElement)
     referee.checkMove(newDiv)
     if(referee.passedTheMove){
 
