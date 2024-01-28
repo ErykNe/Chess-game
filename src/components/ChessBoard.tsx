@@ -111,7 +111,7 @@ export function changePiecePosition(e: React.MouseEvent) {
     let oldDiv = pushedGridsElements[0].parentElement as HTMLElement
     const referee = new MoveLegalityTest
     referee.getPieceType(childElement.id)
-    referee.checkMove()
+    referee.checkMove(newDiv)
     if(referee.passedTheMove){
 
     } else {
@@ -132,16 +132,7 @@ export function changePiecePosition(e: React.MouseEvent) {
         }
     } 
     Utils.alignPiece(childElement, secondChildElement, newDiv)
-    if (oldDiv && newDiv) {
-        console.log(newDiv)
-        console.log(oldDiv)
-        console.log(secondChildElement)
-        console.log(childElement)
-        newDiv.removeChild(secondChildElement)
-        oldDiv.appendChild(secondChildElement)
-        oldDiv.removeChild(childElement)
-        newDiv.appendChild(childElement)
-    }
+    replacePieces(childElement, secondChildElement, oldDiv, newDiv)
     let index1 = board.findIndex(elem => elem.key === newDiv.id)
     let index2 = board.findIndex(elem => elem.key === oldDiv.id)
     if (index1 !== -1 && index2 !== -1) {
@@ -149,4 +140,12 @@ export function changePiecePosition(e: React.MouseEvent) {
         board[index1] = React.cloneElement(board[index1], { children: board[index2].props.children })
         board[index2] = React.cloneElement(board[index2], { children: temp })
     }    
+}
+function replacePieces(x: HTMLElement, y: HTMLElement, divx: HTMLElement, divy: HTMLElement){
+    if (divx && divy) {
+        divy.removeChild(y)
+        divx.appendChild(y)
+        divx.removeChild(x)
+        divy.appendChild(x)
+    }
 }
