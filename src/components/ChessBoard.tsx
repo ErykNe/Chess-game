@@ -109,32 +109,24 @@ export function changePiecePosition(e: React.MouseEvent) {
     const childElement = pushedGridsElements[0] as HTMLElement
     let secondChildElement = pushedGridsElements[1].firstChild as HTMLElement
     let oldDiv = pushedGridsElements[0].parentElement as HTMLElement
-    console.log(board.findIndex(elem => elem.key == "gridd3"))
-    console.log(board.findIndex(elem => elem.key == "gride3"))
-    console.log(board.findIndex(elem => elem.key == "gridf3"))
-    console.log(board.findIndex(elem => elem.key == "gride2"))
-    const referee = new MoveLegalityTest
-    referee.getPiece(childElement)
-    referee.checkMove(newDiv)
-    if(referee.passedTheMove){
-
-    } else {
-        Utils.movePieceBack(childElement)
-        return
-    }
     if (chessPieceElements.length > 1) {
         secondChildElement = pushedGridsElements[1] as HTMLElement
         newDiv = pushedGridsElements[2] as HTMLElement
         oldDiv = pushedGridsElements[0].parentElement as HTMLElement
-        if(secondChildElement.id.includes("White") && childElement.id.includes("White")
-        || secondChildElement.id.includes("Black") && childElement.id.includes("Black")){
-            Utils.movePieceBack(childElement)
-            return
-        } else {
+    } 
+    const referee = new MoveLegalityTest
+    referee.getPiece(childElement)
+    //console.log(newDiv)
+    referee.checkMove(newDiv)
+    if(referee.passedTheMove){
+        if(chessPieceElements.length > 1){
             Utils.takePiece(secondChildElement, newDiv)
             secondChildElement = newDiv.firstChild as HTMLElement
         }
-    } 
+    } else {
+        Utils.movePieceBack(childElement)
+        return
+    }
     Utils.alignPiece(childElement, secondChildElement, newDiv)
     replacePieces(childElement, secondChildElement, oldDiv, newDiv)
     let index1 = board.findIndex(elem => elem.key === newDiv.id)

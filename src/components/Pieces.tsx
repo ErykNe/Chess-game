@@ -14,43 +14,45 @@ export class Pawn {
 
     public findLegalMoves(): React.JSX.Element[] {
         let moves: React.JSX.Element[] = [];
-        console.log(board)
+        //console.log(board)
 
         let indexOnBoard = board.findIndex(elem => elem.key === this.pieceElement.parentElement?.id);
-        console.log(indexOnBoard)
-        console.log(indexOnBoard - 8)
-        console.log(indexOnBoard - 7)
-        console.log(indexOnBoard - 6)
+        //console.log(indexOnBoard)
+        //console.log(indexOnBoard - 8)
+        //console.log(indexOnBoard - 7)
+        //console.log(indexOnBoard - 9)
+        //console.log(board[indexOnBoard - 8])
+        //console.log(board[indexOnBoard - 7])
+        //console.log(board[indexOnBoard - 9])
+        //console.log(board[indexOnBoard - 8].props.children)
+        //console.log(board[indexOnBoard - 7].props.children)
+        //console.log(board[indexOnBoard - 9].props.children)
         //FIX CAPTURING - PROBABLY THE PROBLEM WITH UPDATING THE BOARD
         if (indexOnBoard !== -1 && this.pieceElement.id.includes("White")) {
             const frontSquare = board[indexOnBoard - 8];
             if (frontSquare.props.children?.props.id === "none") {
                 moves.push(frontSquare);
-
-                // If in starting position, check two squares in front
-                //const doubleFrontSquare = isStartingPosition ? board[indexOnBoard - 8] : undefined;
-                //if (doubleFrontSquare && doubleFrontSquare.props.firstChild?.style.display === "none") {
-                //    moves.push(doubleFrontSquare);
-                //}
+                const doubleFrontSquare = board[indexOnBoard - 16];
+                if (doubleFrontSquare && board[indexOnBoard].key?.includes("2")) {
+                    moves.push(doubleFrontSquare);
+                }
             }
             const leftDiagonalSquare = board[indexOnBoard - 7];
-            if (leftDiagonalSquare.props.children?.props.id !== "none") {
+            if (leftDiagonalSquare.props.children?.props.id.includes("Black")) {
                 moves.push(leftDiagonalSquare);
             }
-            const rightDiagonalSquare = board[indexOnBoard - 6];
-            if (rightDiagonalSquare.props.children?.props.id !== "none") {
+            const rightDiagonalSquare = board[indexOnBoard - 9];
+            if (rightDiagonalSquare.props.children?.props.id.includes("Black")) {
                 moves.push(rightDiagonalSquare);
             }
         } else if (indexOnBoard !== -1 && this.pieceElement.id.includes("Black")){
             const frontSquare = board[indexOnBoard + 8];
             if (frontSquare.props.children?.props.id === "none") {
                 moves.push(frontSquare);
-
-                // If in starting position, check two squares in front
-                //const doubleFrontSquare = isStartingPosition ? board[indexOnBoard - 8] : undefined;
-                //if (doubleFrontSquare && doubleFrontSquare.props.firstChild?.style.display === "none") {
-                //    moves.push(doubleFrontSquare);
-                //}
+                const doubleFrontSquare = board[indexOnBoard + 16];
+                if (doubleFrontSquare && board[indexOnBoard].key?.includes("7")) {
+                    moves.push(doubleFrontSquare);
+                }
             }
 
             // Check for capturing moves diagonally
@@ -59,7 +61,7 @@ export class Pawn {
                 moves.push(leftDiagonalSquare);
             }
 
-            const rightDiagonalSquare = board[indexOnBoard + 6];
+            const rightDiagonalSquare = board[indexOnBoard + 9];
             if (rightDiagonalSquare.props.children?.props.id !== "none") {
                 moves.push(rightDiagonalSquare);
             }
@@ -173,12 +175,14 @@ export class MoveLegalityTest {
     }
 
     public checkMove(field: HTMLElement) {
-        console.log(this.piece.legalMoves);
-        const finder = this.piece.legalMoves.find((elem: React.JSX.Element) => {
-            return elem.key === field.id;
-        });
-        console.log(this.piece.legalMoves);
-        this.passedTheMove = !!finder; 
+        const finder = this.piece.legalMoves
+            .flat()
+            .some((parentElement: React.JSX.Element) => {
+                const parentId = parentElement.props.id;
+                return parentId === field.id;
+            });
+    
+        this.passedTheMove = finder;
     }
 }
   //this a prototype for now
