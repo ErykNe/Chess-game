@@ -109,18 +109,42 @@ export class Knight {
     }
 }
 export class Bishop {
-    public legalMoves: React.JSX.Element[]
-    public pieceElement: HTMLElement
+    public legalMoves: React.JSX.Element[];
+    public pieceElement: HTMLElement;
 
-    constructor() {
-        this.legalMoves = this.findLegalMoves()
+    constructor(piece: any) {
+        this.pieceElement = piece
+        this.legalMoves = this.findLegalMoves();
     }
 
     public findLegalMoves(): React.JSX.Element[] {
-        let moves: React.JSX.Element[] = []
+        let moves: React.JSX.Element[] = [];
+        let indexOnBoard = board.findIndex(elem => elem.key === this.pieceElement.parentElement?.id);
+    
+        try {
+            if (this.pieceElement.parentElement && (this.pieceElement.id.includes("White") || this.pieceElement.id.includes("Black"))) {
+                for (let i = 0; i < 8; i++) {
+                    try {
+                        const Squares = [
+                            board[indexOnBoard - 7 * i], board[indexOnBoard - 9 * i], board[indexOnBoard + 7 * i], board[indexOnBoard + 9 * i],
+                        ] as unknown as JSX.Element[];
+                        for(let j = 0; j < Squares.length; j++){
+                            let Square = Squares[j];
+                            if (Square.props.children?.props.id === 'none' || Squares[i].props.children?.props.id === undefined || 
+                                (this.pieceElement.id.includes("White") && Squares[i].props.children?.props.id.includes("Black")) ||
+                                (this.pieceElement.id.includes("Black") && Squares[i].props.children?.props.id.includes("White"))) {
+                                moves.push(Square);
+                            } 
+                        } //try 4 different loops for this because this doesnt work properly
+                    } catch {
+                        continue
+                    }
+                }
+            }
+        } catch {
 
-        // Now you can use mdf without any issue
-
+        }
+    
         return moves;
     }
 }
@@ -186,7 +210,7 @@ export class MoveLegalityTest {
         } else if (piece.id.includes("Knight")) {
             this.piece = new Knight(piece);
         } else if (piece.id.includes("Bishop")) {
-            this.piece = new Bishop();
+            this.piece = new Bishop(piece);
         } else if (piece.id.includes("Rock")) {
             this.piece = new Rock();
         } else if (piece.id.includes("Queen")) {
