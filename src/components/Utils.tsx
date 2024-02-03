@@ -16,17 +16,35 @@ export default {
     takePiece: function takePiece(taken: HTMLElement, newDiv: HTMLElement): void {
       const hiddenPiece = findEmptyField();
       if (hiddenPiece) {
-        let index = board.findIndex((elem) => elem.key === newDiv.id);
-        const clonedHiddenPiece = cloneEmptyField(hiddenPiece);
-        const domNode = convertJsxToDomNode(clonedHiddenPiece);
-        let domElement = domNode as HTMLElement;
-        domElement.style.display = 'none';
-        domElement.id = 'none';
-        board[index] = React.cloneElement(board[index], { children: domNode, taken });
-        newDiv.removeChild(taken);
-        newDiv.appendChild(domNode);
+          const index = board.findIndex((elem) => elem.key === newDiv.id);
+  
+          // Clone the hidden piece and convert it to a DOM node
+          const clonedHiddenPiece = cloneEmptyField(hiddenPiece);
+          const domNode = convertJsxToDomNode(clonedHiddenPiece);
+  
+          // Set styles and properties for the hidden piece
+          const domElement = domNode as HTMLElement;
+          domElement.style.display = 'none';
+          domElement.id = "none";
+  
+          // Remove the taken piece from newDiv and add the hidden piece to newDiv
+          newDiv.innerHTML = '';
+          newDiv.appendChild(domNode);
+  
+          // Update the board array to reflect the changes
+          const updatedElement = React.cloneElement(board[index], { children: clonedHiddenPiece });
+          board[index] = updatedElement;
+  
+          // Find the index of the square where the taken piece was located
+          const takenIndex = board.findIndex((elem) => elem.key === taken.parentElement?.id);
+  
+          // If found, update the corresponding element in the board array
+          if (takenIndex !== -1) {
+              const updatedTakenElement = React.cloneElement(board[takenIndex], { children: clonedHiddenPiece });
+              board[takenIndex] = updatedTakenElement;
+          }
       }
-    },
+  },
   
     alignPiece: function alignPiece(childElement: HTMLElement, secondChildElement: HTMLElement, newDiv: HTMLElement): void {
       childElement.style.width = `${newDiv.clientWidth}px`;

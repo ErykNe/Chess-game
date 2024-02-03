@@ -7,66 +7,65 @@ export class Pawn {
     public legalMoves: React.JSX.Element[];
     public pieceElement: HTMLElement;
 
-    constructor(piece) {
+    constructor(piece: any) {
         this.pieceElement = piece
         this.legalMoves = this.findLegalMoves();
     }
 
     public findLegalMoves(): React.JSX.Element[] {
         let moves: React.JSX.Element[] = [];
-        //console.log(board)
-
         let indexOnBoard = board.findIndex(elem => elem.key === this.pieceElement.parentElement?.id);
-        //console.log(indexOnBoard)
-        //console.log(indexOnBoard - 8)
-        //console.log(indexOnBoard - 7)
-        //console.log(indexOnBoard - 9)
-        //console.log(board[indexOnBoard - 8])
-        //console.log(board[indexOnBoard - 7])
-        //console.log(board[indexOnBoard - 9])
-        //console.log(board[indexOnBoard - 8].props.children)
-        //console.log(board[indexOnBoard - 7].props.children)
-        //console.log(board[indexOnBoard - 9].props.children)
-        //FIX CAPTURING - PROBABLY THE PROBLEM WITH UPDATING THE BOARD
-        if (indexOnBoard !== -1 && this.pieceElement.id.includes("White")) {
-            const frontSquare = board[indexOnBoard - 8];
-            if (frontSquare.props.children?.props.id === "none") {
-                moves.push(frontSquare);
-                const doubleFrontSquare = board[indexOnBoard - 16];
-                if (doubleFrontSquare && board[indexOnBoard].key?.includes("2")) {
-                    moves.push(doubleFrontSquare);
+        try{
+            if (this.pieceElement.id.includes("White")) {
+                const frontSquare = board[indexOnBoard - 8];
+                if (frontSquare.props.children?.props.id === 'none' || frontSquare.props.children?.props.id === undefined) {
+                    moves.push(frontSquare);
+                    const doubleFrontSquare = board[indexOnBoard - 16];
+                    if (doubleFrontSquare && board[indexOnBoard].key?.includes("2")) {
+                        moves.push(doubleFrontSquare);
+                    }
+                }
+                const leftDiagonalSquare = board[indexOnBoard - 7];
+                if (leftDiagonalSquare.props.children?.props.id.includes("Black")) {
+                    moves.push(leftDiagonalSquare);
+                }
+                const rightDiagonalSquare = board[indexOnBoard - 9];
+                if (rightDiagonalSquare.props.children?.props.id.includes("Black")) {
+                    moves.push(rightDiagonalSquare);
+                }
+            } else if (this.pieceElement.id.includes("Black")){
+                const frontSquare = board[indexOnBoard + 8];
+                console.log(frontSquare.props.children?.props.id)
+                if (frontSquare.props.children?.props.id === 'none' || frontSquare.props.children?.props.id === undefined) {
+                    moves.push(frontSquare);
+                    const doubleFrontSquare = board[indexOnBoard + 16];
+                    if (doubleFrontSquare && board[indexOnBoard].key?.includes("7")) {
+                        moves.push(doubleFrontSquare);
+                    }
+                }
+                const leftDiagonalSquare = board[indexOnBoard + 7];
+                if (leftDiagonalSquare.props.children?.props.id.includes("White")) {
+                    moves.push(leftDiagonalSquare);
+                }
+                const rightDiagonalSquare = board[indexOnBoard + 9];
+                if (rightDiagonalSquare.props.children?.props.id.includes("White")) {
+                    moves.push(rightDiagonalSquare);
                 }
             }
-            const leftDiagonalSquare = board[indexOnBoard - 7];
-            if (leftDiagonalSquare.props.children?.props.id.includes("Black")) {
-                moves.push(leftDiagonalSquare);
-            }
-            const rightDiagonalSquare = board[indexOnBoard - 9];
-            if (rightDiagonalSquare.props.children?.props.id.includes("Black")) {
-                moves.push(rightDiagonalSquare);
-            }
-        } else if (indexOnBoard !== -1 && this.pieceElement.id.includes("Black")){
-            const frontSquare = board[indexOnBoard + 8];
-            if (frontSquare.props.children?.props.id === "none") {
-                moves.push(frontSquare);
-                const doubleFrontSquare = board[indexOnBoard + 16];
-                if (doubleFrontSquare && board[indexOnBoard].key?.includes("7")) {
-                    moves.push(doubleFrontSquare);
+        } catch {
+            if (indexOnBoard !== -1 && this.pieceElement.id.includes("White")) {
+                const frontSquare = board[indexOnBoard - 8];
+                console.log(frontSquare.props.children?.props.id)
+                if (frontSquare.props.children?.props.id === undefined) {
+                    moves.push(frontSquare);
                 }
-            }
-
-            // Check for capturing moves diagonally
-            const leftDiagonalSquare = board[indexOnBoard + 7];
-            if (leftDiagonalSquare.props.children?.props.id !== "none") {
-                moves.push(leftDiagonalSquare);
-            }
-
-            const rightDiagonalSquare = board[indexOnBoard + 9];
-            if (rightDiagonalSquare.props.children?.props.id !== "none") {
-                moves.push(rightDiagonalSquare);
+            } else if (indexOnBoard !== -1 && this.pieceElement.id.includes("Black")){
+                const frontSquare = board[indexOnBoard + 8];
+                if (frontSquare.props.children?.props.id === undefined) {
+                    moves.push(frontSquare);
+                }
             }
         }
-
         return moves;
     }
 }
@@ -74,15 +73,38 @@ export class Knight {
     public legalMoves: React.JSX.Element[]
     public pieceElement: HTMLElement
 
-    constructor() {
-        this.legalMoves = this.findLegalMoves()
+    constructor(piece: any) {
+        this.pieceElement = piece
+        this.legalMoves = this.findLegalMoves();
     }
 
     public findLegalMoves(): React.JSX.Element[] {
-        let moves: React.JSX.Element[] = []
+        let moves: React.JSX.Element[] = [];
+        let indexOnBoard = board.findIndex(elem => elem.key === this.pieceElement.parentElement?.id);
+    
+        try {
+            if (this.pieceElement.parentElement && (this.pieceElement.id.includes("White") || this.pieceElement.id.includes("Black"))) {
+                const Squares = [
+                    board[indexOnBoard - 6], board[indexOnBoard - 15], board[indexOnBoard - 17], board[indexOnBoard - 10],
+                    board[indexOnBoard + 6], board[indexOnBoard + 15], board[indexOnBoard + 17], board[indexOnBoard + 10]
+                ] as unknown as JSX.Element[];
+                for (let i = 0; i < 8; i++) {
+                    try {
+                        let Square = Squares[i];
+                        if (Square.props.children?.props.id === 'none' || Squares[i].props.children?.props.id === undefined || 
+                            (this.pieceElement.id.includes("White") && Squares[i].props.children?.props.id.includes("Black")) ||
+                            (this.pieceElement.id.includes("Black") && Squares[i].props.children?.props.id.includes("White"))) {
+                            moves.push(Square);
+                        } 
+                    } catch {
+                        continue
+                    }
+                }
+            }
+        } catch {
 
-        // Now you can use mdf without any issue
-
+        }
+    
         return moves;
     }
 }
@@ -162,7 +184,7 @@ export class MoveLegalityTest {
         if (piece.id.includes("Pawn")) {
             this.piece = new Pawn(piece);
         } else if (piece.id.includes("Knight")) {
-            this.piece = new Knight();
+            this.piece = new Knight(piece);
         } else if (piece.id.includes("Bishop")) {
             this.piece = new Bishop();
         } else if (piece.id.includes("Rock")) {
@@ -175,10 +197,13 @@ export class MoveLegalityTest {
     }
 
     public checkMove(field: HTMLElement) {
+        console.log(this.piece.legalMoves)
         const finder = this.piece.legalMoves
             .flat()
             .some((parentElement: React.JSX.Element) => {
                 const parentId = parentElement.props.id;
+                console.log(parentId)
+                console.log(field.id)
                 return parentId === field.id;
             });
     
