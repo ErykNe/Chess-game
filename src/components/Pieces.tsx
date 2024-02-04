@@ -122,25 +122,48 @@ export class Bishop {
         let indexOnBoard = board.findIndex(elem => elem.key === this.pieceElement.parentElement?.id);
     
         try {
-            if (this.pieceElement.parentElement && (this.pieceElement.id.includes("White") || this.pieceElement.id.includes("Black"))) {
-                for (let i = 0; i < 8; i++) {
-                    try {
-                        const Squares = [
-                            board[indexOnBoard - 7 * i], board[indexOnBoard - 9 * i], board[indexOnBoard + 7 * i], board[indexOnBoard + 9 * i],
-                        ] as unknown as JSX.Element[];
-                        for(let j = 0; j < Squares.length; j++){
-                            let Square = Squares[j];
-                            if (Square.props.children?.props.id === 'none' || Squares[i].props.children?.props.id === undefined || 
-                                (this.pieceElement.id.includes("White") && Squares[i].props.children?.props.id.includes("Black")) ||
-                                (this.pieceElement.id.includes("Black") && Squares[i].props.children?.props.id.includes("White"))) {
-                                moves.push(Square);
-                            } 
-                        } //try 4 different loops for this because this doesnt work properly
-                    } catch {
-                        continue
+            if (this.pieceElement.parentElement && this.pieceElement.id.includes("Black")) {
+                for(let i = 0; i <= 3; i++){
+                    for(let j = 1; j <= 9; j++){
+                        try{
+                            const Squares = [
+                                board[indexOnBoard - 7 * j], board[indexOnBoard - 9 * j], board[indexOnBoard + 7 * j], board[indexOnBoard + 9 * j],
+                            ] as unknown as JSX.Element[];
+                            if (Squares[i].props.children?.props.id === 'none' || Squares[i].props.children?.props.id === undefined) {
+                                moves.push(Squares[i]);
+                            } else if(Squares[i].props.children?.props.id.includes("White")){
+                                moves.push(Squares[i]);
+                                break;
+                            } else {
+                                break;
+                            }
+                        } catch {
+                            continue;
+                        }
                     }
                 }
-            }
+            }    
+            if (this.pieceElement.parentElement && this.pieceElement.id.includes("White")) {
+                for(let i = 0; i <= 3; i++){
+                    for(let j = 1; j <= 9; j++){
+                        try{
+                            const Squares = [
+                                board[indexOnBoard - 7 * j], board[indexOnBoard - 9 * j], board[indexOnBoard + 7 * j], board[indexOnBoard + 9 * j],
+                            ] as unknown as JSX.Element[];
+                            if (Squares[i].props.children?.props.id === 'none' || Squares[i].props.children?.props.id === undefined) {
+                                moves.push(Squares[i]);
+                            } else if(Squares[i].props.children?.props.id.includes("Black")){
+                                moves.push(Squares[i]);
+                                break;
+                            } else {
+                                break;
+                            }
+                        } catch {
+                            continue;
+                        }
+                    }
+                }
+            }    
         } catch {
 
         }
@@ -149,18 +172,42 @@ export class Bishop {
     }
 }
 export class Rock {
-    public legalMoves: React.JSX.Element[]
-    public pieceElement: HTMLElement
+    public legalMoves: React.JSX.Element[];
+    public pieceElement: HTMLElement;
 
-    constructor() {
-        this.legalMoves = this.findLegalMoves()
+    constructor(piece: any) {
+        this.pieceElement = piece
+        this.legalMoves = this.findLegalMoves();
     }
 
     public findLegalMoves(): React.JSX.Element[] {
-        let moves: React.JSX.Element[] = []
+        let moves: React.JSX.Element[] = [];
+        let indexOnBoard = board.findIndex(elem => elem.key === this.pieceElement.parentElement?.id);
+    
+        try {
+            if (this.pieceElement.parentElement && (this.pieceElement.id.includes("White") || this.pieceElement.id.includes("Black"))) {
+                for(let i = 0; i <= 3; i++){
+                    for(let j = 1; j <= 9; j++){
+                        try{
+                            const Squares = [
+                                board[indexOnBoard - (8 * j)], board[indexOnBoard - (1 * j)], board[indexOnBoard + (8 * j)], board[indexOnBoard + (1 * j)],
+                            ] as unknown as JSX.Element[];
+                            if (Squares[i].props.children?.props.id === 'none' || Squares[i].props.children?.props.id === undefined) {
+                                moves.push(Squares[i]);
+                            } else {
+                                moves.push(Squares[i]);
+                                break;
+                            }
+                        } catch {
+                            continue;
+                        }
+                    }
+                }
+            }    
+        } catch {
 
-        // Now you can use mdf without any issue
-
+        }
+    
         return moves;
     }
 }
@@ -212,7 +259,7 @@ export class MoveLegalityTest {
         } else if (piece.id.includes("Bishop")) {
             this.piece = new Bishop(piece);
         } else if (piece.id.includes("Rock")) {
-            this.piece = new Rock();
+            this.piece = new Rock(piece);
         } else if (piece.id.includes("Queen")) {
             this.piece = new Queen();
         } else {
