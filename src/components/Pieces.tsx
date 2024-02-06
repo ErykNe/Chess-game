@@ -134,6 +134,8 @@ export class Bishop {
                             } else if(Squares[i].props.children?.props.id.includes("White")){
                                 moves.push(Squares[i]);
                                 break;
+                            } else if (Squares[i].key?.includes('h') || Squares[i].key?.includes('a')){
+                                break;
                             } else {
                                 break;
                             }
@@ -154,6 +156,8 @@ export class Bishop {
                                 moves.push(Squares[i]);
                             } else if(Squares[i].props.children?.props.id.includes("Black")){
                                 moves.push(Squares[i]);
+                                break;
+                            } else if (Squares[i].key?.includes('h') || Squares[i].key?.includes('a')){
                                 break;
                             } else {
                                 break;
