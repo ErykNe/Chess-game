@@ -196,14 +196,13 @@ export class Knight implements ChessPiece {
             }
         };
     
-            checkAndPushMove(-2, -1);
-            checkAndPushMove(-2, 1);
-            checkAndPushMove(-1, -2);
-            checkAndPushMove(-1, 2);
-            checkAndPushMove(2, -1);
-            checkAndPushMove(2, 1);
-            checkAndPushMove(1, -2);
-            checkAndPushMove(1, 2);
+        for (let deltaCol of [-2, -1, 1, 2]) {
+            for (let deltaRow of [-2, -1, 1, 2]) {
+                if (Math.abs(deltaCol) !== Math.abs(deltaRow)) { 
+                    checkAndPushMove(deltaCol, deltaRow);
+                }
+            }
+        }
     
         return moves;
     }
