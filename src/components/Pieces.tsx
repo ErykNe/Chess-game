@@ -246,7 +246,7 @@ export class Pawn implements ChessPiece {
                 if (frontSquare.props.children?.props.id === 'none' || frontSquare.props.children?.props.id === undefined) {
                     moves.push(frontSquare);
                     const doubleFrontSquare = this.board2D[indexInCol + lit*2][indexInRow];
-                    if ((doubleFrontSquare && this.board2D[indexInCol][indexInRow].key?.includes("2") || this.board2D[indexInCol][indexInRow].key?.includes("7")) && !doubleFrontSquare.props.children?.props.id.includes(color)) {
+                    if ((doubleFrontSquare && this.board2D[indexInCol][indexInRow].key?.includes("2") || this.board2D[indexInCol][indexInRow].key?.includes("7")) && !doubleFrontSquare.props.children?.props.id.includes(color) || frontSquare.props.children?.props.id === undefined) {
                         moves.push(doubleFrontSquare);
                     }
                 }
