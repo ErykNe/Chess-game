@@ -1,6 +1,6 @@
 import React from "react";
 import ChessBoard from "./ChessBoard";
-import { board } from "./ChessBoard.tsx";
+import { board, move } from "./ChessBoard.tsx";
 
 
 function convertTo2DArray<T>(boardArray: T[]): T[][] {
@@ -248,6 +248,7 @@ export class Pawn implements ChessPiece {
                     const doubleFrontSquare = this.board2D[indexInCol + lit*2][indexInRow];
                     if ((doubleFrontSquare && this.board2D[indexInCol][indexInRow].key?.includes("2") || this.board2D[indexInCol][indexInRow].key?.includes("7")) && !doubleFrontSquare.props.children?.props.id.includes(color) || frontSquare.props.children?.props.id === undefined) {
                         moves.push(doubleFrontSquare);
+                        move.wasDoubleSquare = true;
                     }
                 }
                 const leftDiagonalSquare = this.board2D[indexInCol + lit][indexInRow + lit];

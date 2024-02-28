@@ -3,6 +3,7 @@ import './ChessBoard.css';
 import Utils from './Utils.tsx';
 import Event from './Event.tsx';
 import { MoveLegalityTest } from './Pieces.tsx';
+import Rules, { Move } from './Rules.tsx';
 
 const verticalAxis = [1,2,3,4,5,6,7,8]
 const horizontalAxis = ['a','b','c','d','e','f','g','h']
@@ -12,7 +13,7 @@ export let board : React.JSX.Element [] = ChessGrids()
 export default function ChessBoard(){
     return <div id="chessBoard">{board}</div>
 }
-
+export let move = new Move()
 export function ChessGrids(){
     let board : React.JSX.Element [] = []
     for(let j = verticalAxis.length - 1; j >= 0; j--) {
@@ -119,6 +120,22 @@ export function changePiecePosition(e: React.MouseEvent) {
     //console.log(newDiv)
     referee.checkMove(newDiv)
     if(referee.passedTheMove){
+        if(childElement.id.includes("White")){
+            if(move.Turn != "White"){
+                Utils.movePieceBack(childElement)
+                return
+            }
+            move.Turn = "Black";
+        } else {
+            if(move.Turn == "White"){
+                Utils.movePieceBack(childElement)
+                return
+            }
+            move.Turn = "White";
+        }
+        //here second referee - double check if move is coherent with chess rules
+        const anotherReferee = new Rules(childElement);
+        //here if statements
         if(chessPieceElements.length > 1){
             Utils.takePiece(secondChildElement, newDiv)
             secondChildElement = newDiv.firstChild as HTMLElement
@@ -135,7 +152,10 @@ export function changePiecePosition(e: React.MouseEvent) {
         const temp = board[index1].props.children
         board[index1] = React.cloneElement(board[index1], { children: board[index2].props.children })
         board[index2] = React.cloneElement(board[index2], { children: temp })
-    }    
+    }  
+    move.previous = [childElement, childElement.parentElement?.id]
+    move.wasDoubleSquare = false;
+    console.log(move.previous)
 }
 function replacePieces(x: HTMLElement, y: HTMLElement, divx: HTMLElement, divy: HTMLElement){
     if (divx && divy) {
