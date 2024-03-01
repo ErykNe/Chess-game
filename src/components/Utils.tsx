@@ -53,6 +53,7 @@ export default {
       taken.style.display = 'none';
       taken.id = 'none';
       taken.innerHTML = 'none';
+      
     },
   
     alignPiece: function alignPiece(childElement: HTMLElement, secondChildElement: HTMLElement, newDiv: HTMLElement): void {

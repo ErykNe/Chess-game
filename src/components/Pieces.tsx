@@ -61,16 +61,21 @@ export class PieceMove {
             let color: string = this.move[0].piece.pieceElement.id.includes("White") ? "Black" : "White";
             let lit =  this.move[0].piece.pieceElement.id.includes("White") ? -1 : 1;
             const leftDiagonalSquare = board[indexInCol + lit][indexInRow - lit];
+            console.log(board[indexInCol][indexInRow - lit].key)
+            console.log(previousMovement.move[0].gridElement.id)
             
-            if (board[indexInCol][indexInRow - lit].props.children?.props.id.includes(color)) {
+            if (board[indexInCol][indexInRow - lit].key?.at(4) === previousMovement.move[0].gridElement.id[4]) {
                 this.move[0].legalMoves.push(leftDiagonalSquare);
+                this.move[0].piece.EnPassantMove = (leftDiagonalSquare)
             }
             const rightDiagonalSquare = board[indexInCol + lit][indexInRow + lit];
-            if (board[indexInCol][indexInRow + lit].props.children?.props.id.includes(color)) {
+            if (board[indexInCol][indexInRow + lit].key?.at(4) === previousMovement.move[0].gridElement.id[4]) {
                 this.move[0].legalMoves.push(rightDiagonalSquare);
+                this.move[0].piece.EnPassantMove = (rightDiagonalSquare)
             }
             this.isEnPassant = true;
         }
+        console.log(Moves)
         return Moves;
     }
     public MoveIsIllegal(){
@@ -97,6 +102,7 @@ export class PieceMove {
 
 export class Pawn {
     public pieceElement: HTMLElement;
+    public EnPassantMove: React.JSX.Element;
 
     constructor(piece: HTMLElement) {
         this.pieceElement = piece;

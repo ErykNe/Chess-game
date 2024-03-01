@@ -121,13 +121,11 @@ export function changePiecePosition(e: React.MouseEvent) {
         Utils.takePiece(secondChildElement, newDiv)
         secondChildElement = newDiv.firstChild as HTMLElement
     }
-    if(Piece.Movement.isEnPassant){
-        try{
-            secondChildElement = previousMovement.move[0].piece.pieceElement
-            Utils.removePiece(secondChildElement)
-            secondChildElement = newDiv.firstChild as HTMLElement
-        } catch {}
+    if(Piece.Movement.isEnPassant && Piece.piece.EnPassantMove.key?.at(4) == newDiv.id.at(4)){
+        Utils.takePiece(previousMovement.move[0].piece.pieceElement, document.getElementById(previousMovement.move[1].id) as HTMLElement)
+        secondChildElement = newDiv.firstChild as HTMLElement
     }
+ 
     Utils.alignPiece(childElement, secondChildElement, newDiv)
     Utils.replacePieces(childElement, secondChildElement, oldDiv, newDiv)
 
