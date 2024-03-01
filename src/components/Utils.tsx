@@ -49,12 +49,6 @@ export default {
           }
       }
     },
-    removePiece: function removePiece(taken: HTMLElement): void {
-      taken.style.display = 'none';
-      taken.id = 'none';
-      taken.innerHTML = 'none';
-      
-    },
   
     alignPiece: function alignPiece(childElement: HTMLElement, secondChildElement: HTMLElement, newDiv: HTMLElement): void {
       childElement.style.width = `${newDiv.clientWidth}px`;

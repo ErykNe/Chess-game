@@ -3,15 +3,9 @@ import ChessBoard from "./ChessBoard";
 import { board, turn, previousMovement, horizontalAxis } from "./ChessBoard.tsx";
 import { ChessPiece, PieceMove } from "./Pieces.tsx";
 
-function convertTo2DArray<T>(boardArray: T[]): T[][] {
-    const size = 8; // Assuming it's always an 8x8 board
-    const result: T[][] = [];
-    for (let i = 0; i < boardArray.length; i += size) {
-        result.push(boardArray.slice(i, i + size));
-    }
-    return result;
-}
-
+export let hasKingMoved: [boolean, boolean] = [false, false];
+export let hasRook1Moved: [boolean, boolean] = [false, false];
+export let hasRook2Moved: [boolean, boolean] = [false, false];
 
 export default class Rules {
    private Turn: string = turn
@@ -65,6 +59,56 @@ export default class Rules {
         return false;
    }
    private CheckCastle(){
+        try {
+            if(this.movement.move[0].piece.pieceElement.id.includes("King")){
+                if(this.movement.move[0].piece.pieceElement.id.includes("White")){
+                    if(this.movement.piecePreviousPosition.id.includes("1")){
+                        console.log(board[7][0].props.children?.props.id)
+                        if(board[7][0].props.children.props.id.includes("Rook")){
+                            console.log(board[7][1].props.children.props.id)
+                            console.log(board[7][2].props.children.props.id)
+                            console.log(board[7][3].props.children.props.id)
+                            if(board[7][1].props.children.props.id.includes("none") && 
+                            board[7][2].props.children.props.id.includes("none") && 
+                            board[7][3].props.children.props.id.includes("none") && hasKingMoved[0] == false && hasRook1Moved[0] == false && hasRook2Moved[0] == false){
+                                console.log("CASTLE AVAILABLE")
+                                return true
+                            }
+                        }
+                        if(board[7][7].props.children.props.id.includes("Rook")){
+                            console.log("We gettin theere")
+                            if(board[7][5].props.children.props.id.includes("none") && board[7][6].props.children.props.id.includes("none") 
+                            && hasKingMoved[0] == false && hasRook1Moved[0] == false && hasRook2Moved[0] == false){
+                                console.log("CASTLE AVAILABLE")
+                                return true
+                            }
+                        }
+                    }
+                } else {
+                    if(this.movement.piecePreviousPosition.id.includes("8")){
+                        console.log(board[0][0].props.children?.props.id)
+                        if(board[0][0].props.children.props.id.includes("Rook")){
+                            console.log(board[0][1].props.children.props.id)
+                            console.log(board[0][2].props.children.props.id)
+                            console.log(board[0][3].props.children.props.id)
+                            if(board[0][1].props.children.props.id.includes("none") && 
+                            board[0][2].props.children.props.id.includes("none") && 
+                            board[0][3].props.children.props.id.includes("none")){
+                                console.log("CASTLE AVAILABLE")
+                                return true
+                            }
+                        }
+                        if(board[0][7].props.children.props.id.includes("Rook")){
+                            console.log("We gettin theere")
+                            if(board[0][5].props.children.props.id.includes("none") && board[0][6].props.children.props.id.includes("none")){
+                                console.log("CASTLE AVAILABLE")
+                                return true
+                            }
+                        }
+                    }
+                }
+            }
+        } catch { return false }
         return false;
    }
    public CheckCompatibilityWithTurn(elem) {
@@ -74,4 +118,13 @@ export default class Rules {
             this.TurnDoesntMatchPieceType =  this.Turn === "White"
         }
    }
+}
+export function setHasKingMoved(value: [boolean, boolean]): void {
+    hasKingMoved = value;
+}
+export function setHasRook1Moved(value: [boolean, boolean]): void {
+    hasRook1Moved = value;
+}
+export function setHasRook2Moved(value: [boolean, boolean]): void {
+    hasRook2Moved = value;
 }

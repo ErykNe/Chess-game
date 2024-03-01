@@ -1,7 +1,7 @@
 import React from "react";
 import ChessBoard, { previousMovement } from "./ChessBoard.tsx";
 import { board } from "./ChessBoard.tsx";
-import Rules from "./Rules.tsx";
+import Rules, { hasKingMoved, hasRook1Moved, hasRook2Moved, setHasKingMoved , setHasRook1Moved , setHasRook2Moved } from "./Rules.tsx";
 import Utils from "./Utils.tsx";
 
 
@@ -52,6 +52,7 @@ export class PieceMove {
         this.piecePreviousPosition = pieceParentElement
         this.move[0].legalMoves = this.filterIllegalMoves(this.move[0].legalMoves)
         this.isMovePawnDoubleSquare = this.handleDoubleSquareMovement()
+        this.handleFirstMovements()
     }
     private filterIllegalMoves(Moves: React.JSX.Element[]){
         let referee = new Rules(this)
@@ -75,6 +76,9 @@ export class PieceMove {
             }
             this.isEnPassant = true;
         }
+        if(referee.Castle){
+
+        }
         console.log(Moves)
         return Moves;
     }
@@ -97,6 +101,39 @@ export class PieceMove {
             return true;
         }
         return false;
+    }
+    private handleFirstMovements() {
+        let KingMovedTemp: [boolean, boolean] = [false, false];
+        if(this.piecePreviousPosition.id.includes("e1") && this.move[0].pieceType == "King" && !this.move[1].id.includes("e1")) {
+            KingMovedTemp[0] = true    
+            setHasKingMoved(KingMovedTemp)       
+        }
+        if(this.piecePreviousPosition.id.includes("e8") && this.move[0].pieceType == "King" && !this.move[1].id.includes("e8")) {
+            KingMovedTemp[1] = true
+        }
+        setHasKingMoved(KingMovedTemp)
+
+        let Rook1MovedTemp: [boolean, boolean] = [false, false];
+        if(this.piecePreviousPosition.id.includes("a1") && this.move[0].pieceType == "Rook" && !this.move[1].id.includes("a1")){
+            Rook1MovedTemp[0] = true
+            setHasRook1Moved(KingMovedTemp)
+        }
+        if(this.piecePreviousPosition.id.includes("a8") && this.move[0].pieceType == "Rook" && !this.move[1].id.includes("a8")){
+            Rook1MovedTemp[1] = true
+            setHasRook1Moved(KingMovedTemp)
+        }
+
+        let Rook2MovedTemp: [boolean, boolean] = [false, false];
+        if(this.piecePreviousPosition.id.includes("h1") && this.move[0].pieceType == "Rook" && !this.move[1].id.includes("h1")){
+            Rook2MovedTemp[0] = true
+            setHasRook2Moved(Rook2MovedTemp)
+        }
+        if(this.piecePreviousPosition.id.includes("h8") && this.move[0].pieceType == "Rook" && !this.move[1].id.includes("h8")){
+            Rook2MovedTemp[1] = true
+            setHasRook2Moved(Rook2MovedTemp)
+        }
+
+        console.log(hasKingMoved , hasRook1Moved , hasRook2Moved)
     }
 }
 
@@ -270,6 +307,8 @@ export class Queen {
 
 export class King {
     public pieceElement: HTMLElement;
+    public canCastle: boolean = false;
+    public castleType: string = "none";
 
     constructor(piece: HTMLElement) {
         this.pieceElement = piece;
