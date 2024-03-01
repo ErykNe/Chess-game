@@ -4,6 +4,7 @@ import { board }  from "./ChessBoard.tsx";
 import './ChessBoard.css';
 
 export default {
+
     movePieceBack: function movePieceBack(piece: HTMLElement): void {
       piece.style.width = `${piece.parentElement?.clientWidth}px`;
       piece.style.height = `${piece.parentElement?.clientHeight}px`;
@@ -16,7 +17,8 @@ export default {
     takePiece: function takePiece(taken: HTMLElement, newDiv: HTMLElement): void {
       const hiddenPiece = findEmptyField();
       if (hiddenPiece) {
-          const index = board.findIndex((elem) => elem.key === newDiv.id);
+          let indexInCol = board.findIndex(row => row.findIndex(square => square.key === newDiv.id) !== -1);
+          let indexInRow = board[indexInCol].findIndex(square => square.key === newDiv.id);
   
           // Clone the hidden piece and convert it to a DOM node
           const clonedHiddenPiece = cloneEmptyField(hiddenPiece);
@@ -32,19 +34,20 @@ export default {
           newDiv.appendChild(domNode);
   
           // Update the board array to reflect the changes
-          const updatedElement = React.cloneElement(board[index], { children: clonedHiddenPiece });
-          board[index] = updatedElement;
+          const updatedElement = React.cloneElement(board[indexInCol][indexInRow], { children: clonedHiddenPiece });
+          board[indexInCol][indexInRow] = updatedElement;
   
           // Find the index of the square where the taken piece was located
-          const takenIndex = board.findIndex((elem) => elem.key === taken.parentElement?.id);
+          let indexInCol2 = board.findIndex(row => row.findIndex(square => square.key === taken.parentElement?.id) !== -1);
+          let indexInRow2 = board[indexInCol].findIndex(square => square.key === taken.parentElement?.id);
   
           // If found, update the corresponding element in the board array
-          if (takenIndex !== -1) {
-              const updatedTakenElement = React.cloneElement(board[takenIndex], { children: clonedHiddenPiece });
-              board[takenIndex] = updatedTakenElement;
+          if (indexInCol2 !== -1 && indexInRow2 !== -1) {
+              const updatedTakenElement = React.cloneElement(board[indexInCol2][indexInRow2], { children: clonedHiddenPiece });
+              board[indexInCol2][indexInRow2] = updatedTakenElement;
           }
       }
-  },
+    },
   
     alignPiece: function alignPiece(childElement: HTMLElement, secondChildElement: HTMLElement, newDiv: HTMLElement): void {
       childElement.style.width = `${newDiv.clientWidth}px`;
@@ -55,6 +58,14 @@ export default {
       childElement.style.position = '';
       secondChildElement.style.animation = 'none';
     },
+    replacePieces: function replacePieces(x: HTMLElement, y: HTMLElement, divx: HTMLElement, divy: HTMLElement){
+      if (divx && divy) {
+          divy.removeChild(y)
+          divx.appendChild(y)
+          divx.removeChild(x)
+          divy.appendChild(x)
+      }
+    }
 };
 function findEmptyField(): HTMLElement | null {
     const hiddenPieces = document.querySelectorAll('.chessPiece[style*="display: none"]');

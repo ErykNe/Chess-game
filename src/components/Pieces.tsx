@@ -1,45 +1,137 @@
 import React from "react";
 import ChessBoard from "./ChessBoard";
-import { board, move } from "./ChessBoard.tsx";
+import { board } from "./ChessBoard.tsx";
+import Rules from "./Rules.tsx";
+import Utils from "./Utils.tsx";
 
 
-function convertTo2DArray<T>(boardArray: T[]): T[][] {
-    const size = 8; // Assuming it's always an 8x8 board
-    const result: T[][] = [];
-    for (let i = 0; i < boardArray.length; i += size) {
-        result.push(boardArray.slice(i, i + size));
-    }
-    return result;
-}
-
-interface ChessPiece {
-    legalMoves: React.JSX.Element[];
-    pieceElement: HTMLElement;
-    board2D: JSX.Element[][];
-}
-
-export class Bishop implements ChessPiece {
+export class ChessPiece {
+    public piece: any;
+    public pieceType: string;
+    public gridElement: HTMLElement;
     public legalMoves: React.JSX.Element[];
+    public Movement: PieceMove
+
+    constructor(piece: HTMLElement, parent: HTMLElement){
+        this.piece = piece;
+        this.gridElement = parent;
+        this.getType()
+        this.legalMoves = this.piece.getLegalMoves()
+    }
+
+    private getType(){
+        if (this.piece.id.includes("Pawn")) {
+            this.piece = new Pawn(this.piece);
+            this.pieceType = "Pawn";
+        } else if (this.piece.id.includes("Knight")) {
+            this.piece = new Knight(this.piece);
+            this.pieceType = "Knight";
+        } else if (this.piece.id.includes("Bishop")) {
+            this.piece = new Bishop(this.piece);
+            this.pieceType = "Bishop";
+        } else if (this.piece.id.includes("Rook")) {
+            this.piece = new Rook(this.piece);
+            this.pieceType = "Rook";
+        } else if (this.piece.id.includes("Queen")) {
+            this.piece = new Queen(this.piece);
+            this.pieceType = "Queen";
+        } else {
+            this.piece = new King(this.piece);
+            this.pieceType = "King";
+        }
+    }
+    
+}
+export class PieceMove {
+    public move: [ChessPiece, HTMLElement];
+    constructor(piece: ChessPiece, grid: HTMLElement){
+        this.move = [piece, grid]
+        this.move[0].legalMoves = this.filterIllegalMoves(this.move[0].legalMoves)
+    }
+    public filterIllegalMoves(Moves: React.JSX.Element[]){
+        let moves: React.JSX.Element[] = [];
+        let referee = new Rules()
+
+        return moves;
+    }
+    public MoveIsIllegal(){
+        const referee = this.move[0].legalMoves
+            .flat()
+            .some((parentElement: React.JSX.Element) => {
+                const parentId = parentElement.props.id;
+                console.log(parentId )
+                console.log(this.move[1].id)
+                return parentId === this.move[1].id;
+            });
+            console.log(referee)
+        return referee;
+    }
+}
+
+export class Pawn {
     public pieceElement: HTMLElement;
-    public board2D = convertTo2DArray(board);
 
     constructor(piece: HTMLElement) {
         this.pieceElement = piece;
-        this.board2D = this.board2D;
-        this.legalMoves = this.findLegalMoves();
     }
 
-    public findLegalMoves(): React.JSX.Element[] {
+
+    public getLegalMoves(): React.JSX.Element[] {
         const moves: React.JSX.Element[] = [];
-        let tem = board.find(elem => elem.key === this.pieceElement.parentElement?.id);
-        let indexInCol = this.board2D.findIndex(row => row.findIndex(square => square === tem) !== -1);
-        let indexInRow = this.board2D[indexInCol].findIndex(square => square === tem);
+        let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.pieceElement.parentElement?.id) !== -1);
+        let indexInRow = board[indexInCol].findIndex(square => square.key === this.pieceElement.parentElement?.id);
+        let color: string;
+        let lit = -1;
+        if (this.pieceElement.id.includes("White")){
+            color = "Black";
+
+        } else {
+            color = "White";
+            lit = 1;
+        }
+        try{
+                const frontSquare = board[indexInCol + lit][indexInRow];
+                if (frontSquare.props.children?.props.id === 'none' || frontSquare.props.children?.props.id === undefined) {
+                    moves.push(frontSquare);
+                    const doubleFrontSquare = board[indexInCol + lit*2][indexInRow];
+                    if ((doubleFrontSquare && board[indexInCol][indexInRow].key?.includes("2") || board[indexInCol][indexInRow].key?.includes("7")) && !doubleFrontSquare.props.children?.props.id.includes(color) || frontSquare.props.children?.props.id === undefined) {
+                        moves.push(doubleFrontSquare);
+                    }
+                }
+                const leftDiagonalSquare = board[indexInCol + lit][indexInRow + lit];
+                if (leftDiagonalSquare.props.children?.props.id.includes(color)) {
+                    moves.push(leftDiagonalSquare);
+                }
+                const rightDiagonalSquare = board[indexInCol + lit][indexInRow - lit];
+                if (rightDiagonalSquare.props.children?.props.id.includes(color)) {
+                    moves.push(rightDiagonalSquare);
+                }
+           
+        } catch {
+
+        }
+        console.log(moves)
+        return moves;
+    }
+}
+
+export class Bishop {
+    public pieceElement: HTMLElement;
+
+    constructor(piece: HTMLElement) {
+        this.pieceElement = piece;
+    }
+
+    public getLegalMoves(): React.JSX.Element[] {
+        const moves: React.JSX.Element[] = [];
+        let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.pieceElement.parentElement?.id) !== -1);
+        let indexInRow = board[indexInCol].findIndex(square => square.key === this.pieceElement.parentElement?.id);
         const color = this.pieceElement.id.includes('White') ? 'White' : 'Black';
 
         const checkAndPushMoves = (deltaCol: number, deltaRow: number) => {
             try {
                 for (let i = 1; i < board.length; i++) {
-                    const nextSquare = this.board2D[indexInCol + i * deltaCol][indexInRow + i * deltaRow];
+                    const nextSquare = board[indexInCol + i * deltaCol][indexInRow + i * deltaRow];
                     const nextSquareId = nextSquare.props.children?.props.id;
                     if (nextSquareId === 'none' || nextSquareId === undefined) {
                         moves.push(nextSquare);
@@ -57,32 +149,28 @@ export class Bishop implements ChessPiece {
                 checkAndPushMoves(deltaCol, deltaRow);
             }
         }
+    
         return moves;
     }
 }
 
-export class Rock implements ChessPiece {
-    public legalMoves: React.JSX.Element[];
+export class Rook {
     public pieceElement: HTMLElement;
-    public board2D = convertTo2DArray(board);
 
     constructor(piece: HTMLElement) {
         this.pieceElement = piece;
-        this.board2D = this.board2D;
-        this.legalMoves = this.findLegalMoves();
     }
 
-    public findLegalMoves(): React.JSX.Element[] {
+    public getLegalMoves(): React.JSX.Element[] {
         const moves: React.JSX.Element[] = [];
-        let tem = board.find(elem => elem.key === this.pieceElement.parentElement?.id);
-        let indexInCol = this.board2D.findIndex(row => row.findIndex(square => square === tem) !== -1);
-        let indexInRow = this.board2D[indexInCol].findIndex(square => square === tem);
+        let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.pieceElement.parentElement?.id) !== -1);
+        let indexInRow = board[indexInCol].findIndex(square => square.key === this.pieceElement.parentElement?.id);
         const color = this.pieceElement.id.includes('White') ? 'White' : 'Black';
 
         const checkAndPushMoves = (deltaCol: number, deltaRow: number) => {
             try {
                 for (let i = 1; i < board.length; i++) {
-                    const nextSquare = this.board2D[indexInCol + i * deltaCol][indexInRow + i * deltaRow];
+                    const nextSquare = board[indexInCol + i * deltaCol][indexInRow + i * deltaRow];
                     const nextSquareId = nextSquare.props.children?.props.id;
                     if (nextSquareId === 'none' || nextSquareId === undefined) {
                         moves.push(nextSquare);
@@ -99,34 +187,29 @@ export class Rock implements ChessPiece {
         checkAndPushMoves(0, 1);
         checkAndPushMoves(-1, 0);
         checkAndPushMoves(0, -1);
-        console.log(moves)
+    
         return moves;
     }
 }
 
-// Implement classes for Queen, King similarly
-
-export class Queen implements ChessPiece {
-    public legalMoves: React.JSX.Element[];
+export class Queen {
     public pieceElement: HTMLElement;
-    public board2D = convertTo2DArray(board);
 
     constructor(piece: HTMLElement) {
         this.pieceElement = piece;
-        this.legalMoves = this.findLegalMoves();
     }
 
-    public findLegalMoves(): React.JSX.Element[] {
+
+    public getLegalMoves(): React.JSX.Element[] {
         const moves: React.JSX.Element[] = [];
-        const tem = board.find(elem => elem.key === this.pieceElement.parentElement?.id);
-        const indexInCol = this.board2D.findIndex(row => row.findIndex(square => square === tem) !== -1);
-        const indexInRow = this.board2D[indexInCol].findIndex(square => square === tem);
+        let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.pieceElement.parentElement?.id) !== -1);
+        let indexInRow = board[indexInCol].findIndex(square => square.key === this.pieceElement.parentElement?.id);
         const color = this.pieceElement.id.includes('White') ? 'White' : 'Black';
 
         const checkAndPushMoves = (deltaCol: number, deltaRow: number) => {
             try {
                 for (let i = 1; i < board.length; i++) {
-                    const nextSquare = this.board2D[indexInCol + i * deltaCol][indexInRow + i * deltaRow];
+                    const nextSquare = board[indexInCol + i * deltaCol][indexInRow + i * deltaRow];
                     const nextSquareId = nextSquare.props.children?.props.id;
                     if (nextSquareId === 'none' || nextSquareId === undefined) {
                         moves.push(nextSquare);
@@ -155,32 +238,28 @@ export class Queen implements ChessPiece {
                 }
             }
         }
-
+    
         return moves;
     }
 }
 
-export class King implements ChessPiece {
-    public legalMoves: React.JSX.Element[];
+export class King {
     public pieceElement: HTMLElement;
-    public board2D = convertTo2DArray(board);
 
     constructor(piece: HTMLElement) {
         this.pieceElement = piece;
-        this.board2D = this.board2D;
-        this.legalMoves = this.findLegalMoves();
     }
 
-    public findLegalMoves(): React.JSX.Element[] {
+
+    public getLegalMoves(): React.JSX.Element[] {
         const moves: React.JSX.Element[] = [];
-        const tem = board.find(elem => elem.key === this.pieceElement.parentElement?.id);
-        const indexInCol = this.board2D.findIndex(row => row.findIndex(square => square === tem) !== -1);
-        const indexInRow = this.board2D[indexInCol].findIndex(square => square === tem);
+        let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.pieceElement.parentElement?.id) !== -1);
+        let indexInRow = board[indexInCol].findIndex(square => square.key === this.pieceElement.parentElement?.id);
         const color = this.pieceElement.id.includes('White') ? 'White' : 'Black';
 
         const checkAndPushMoves = (deltaCol: number, deltaRow: number) => {
             try {
-                    const nextSquare = this.board2D[indexInCol + deltaCol][indexInRow + deltaRow];
+                    const nextSquare = board[indexInCol + deltaCol][indexInRow + deltaRow];
                     const nextSquareId = nextSquare.props.children?.props.id;
                     if (nextSquareId === 'none' || nextSquareId === undefined) {
                         moves.push(nextSquare);
@@ -209,90 +288,27 @@ export class King implements ChessPiece {
                 }
             }
         }
-
+    
         return moves;
     }
 }
 
-// Implement Pawn and Knight classes similarly
-
-export class Pawn implements ChessPiece {
-    public legalMoves: React.JSX.Element[];
+export class Knight {
     public pieceElement: HTMLElement;
-    public board2D: JSX.Element[][];
 
     constructor(piece: HTMLElement) {
         this.pieceElement = piece;
-        this.board2D = convertTo2DArray(board);
-        this.legalMoves = this.findLegalMoves();
     }
 
-    public findLegalMoves(): React.JSX.Element[] {
+
+    public getLegalMoves(): React.JSX.Element[] {
         const moves: React.JSX.Element[] = [];
-        let tem = board.find(elem => elem.key === this.pieceElement.parentElement?.id);
-        let indexInCol = this.board2D.findIndex(row => row.findIndex(square => square === tem) !== -1);
-        let indexInRow = this.board2D[indexInCol].findIndex(square => square === tem);
-        let color: string;
-        let lit = -1;
-        if (this.pieceElement.id.includes("White")){
-            color = "Black";
-
-        } else {
-            color = "White";
-            lit = 1;
-        }
-        try{
-                const frontSquare = this.board2D[indexInCol + lit][indexInRow];
-                if (frontSquare.props.children?.props.id === 'none' || frontSquare.props.children?.props.id === undefined) {
-                    moves.push(frontSquare);
-                    const doubleFrontSquare = this.board2D[indexInCol + lit*2][indexInRow];
-                    if ((doubleFrontSquare && this.board2D[indexInCol][indexInRow].key?.includes("2") || this.board2D[indexInCol][indexInRow].key?.includes("7")) && !doubleFrontSquare.props.children?.props.id.includes(color) || frontSquare.props.children?.props.id === undefined) {
-                        moves.push(doubleFrontSquare);
-                        move.wasDoubleSquare = true;
-                    }
-                }
-                const leftDiagonalSquare = this.board2D[indexInCol + lit][indexInRow + lit];
-                if (leftDiagonalSquare.props.children?.props.id.includes(color)) {
-                    moves.push(leftDiagonalSquare);
-                }
-                const rightDiagonalSquare = this.board2D[indexInCol + lit][indexInRow - lit];
-                if (rightDiagonalSquare.props.children?.props.id.includes(color)) {
-                    moves.push(rightDiagonalSquare);
-                }
-           
-        } catch {
-
-        }
-        console.log(moves)
-        return moves;
-    }
-}
-
-export class Knight implements ChessPiece {
-    public legalMoves: React.JSX.Element[];
-    public pieceElement: HTMLElement;
-    public board2D = convertTo2DArray(board);
-
-    constructor(piece: HTMLElement) {
-        this.pieceElement = piece;
-        this.board2D = this.board2D;
-        this.legalMoves = this.findLegalMoves();
-    }
-
-    public findLegalMoves(): React.JSX.Element[] {
-        const moves: React.JSX.Element[] = [];
-        let tem = board.find(elem => elem.key === this.pieceElement.parentElement?.id);
-        let indexInCol = this.board2D.findIndex(row => row.findIndex(square => square === tem) !== -1);
-        let indexInRow = this.board2D[indexInCol].findIndex(square => square === tem);
-        let color: string;
-        if (this.pieceElement.id.includes('White')){
-            color = "White";
-        } else {
-            color = "Black";
-        }
+        let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.pieceElement.parentElement?.id) !== -1);
+        let indexInRow = board[indexInCol].findIndex(square => square.key === this.pieceElement.parentElement?.id);
+        const color = this.pieceElement.id.includes('White') ? 'White' : 'Black';
         const checkAndPushMove = (deltaCol: number, deltaRow: number) => {
             try {
-                const nextSquare = this.board2D[indexInCol + deltaCol][indexInRow + deltaRow];
+                const nextSquare = board[indexInCol + deltaCol][indexInRow + deltaRow];
                 const nextSquareId = nextSquare.props.children?.props.id;
                 if (nextSquareId === 'none' || nextSquareId === undefined || !nextSquareId.includes(color)) {
                     moves.push(nextSquare);
@@ -309,53 +325,7 @@ export class Knight implements ChessPiece {
                 }
             }
         }
-    
+        
         return moves;
     }
 }
-// Implement classes for other chess pieces similarly
-
-export class MoveLegalityTest {
-    public passedTheMove: boolean;
-    public piece: ChessPiece | null;
-
-    constructor() {
-        this.passedTheMove = false;
-        this.piece = null;
-    }
-
-    public getPiece(piece: any) {
-        if (piece.id.includes("Pawn")) {
-            this.piece = new Pawn(piece);
-            this.piece.board2D = convertTo2DArray(board)
-        } else if (piece.id.includes("Knight")) {
-            this.piece = new Knight(piece);
-            this.piece.board2D = convertTo2DArray(board)
-        } else if (piece.id.includes("Bishop")) {
-            this.piece = new Bishop(piece);
-            this.piece.board2D = convertTo2DArray(board)
-        } else if (piece.id.includes("Rock")) {
-            this.piece = new Rock(piece);
-            this.piece.board2D = convertTo2DArray(board)
-        } else if (piece.id.includes("Queen")) {
-            this.piece = new Queen(piece);
-            this.piece.board2D = convertTo2DArray(board)
-        } else {
-            this.piece = new King(piece);
-            this.piece.board2D = convertTo2DArray(board)
-        }
-    }
-
-    public checkMove(field: HTMLElement) {
-        if (this.piece) {
-            const finder = this.piece.legalMoves
-                .flat()
-                .some((parentElement: React.JSX.Element) => {
-                    const parentId = parentElement.props.id;
-                    return parentId === field.id;
-                });
-            this.passedTheMove = finder;
-        }
-    }
-}
-  //this a prototype for now
