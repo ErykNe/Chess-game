@@ -1,5 +1,5 @@
 import React from "react";
-import ChessBoard from "./ChessBoard";
+import ChessBoard, { previousMovement } from "./ChessBoard.tsx";
 import { board } from "./ChessBoard.tsx";
 import Rules from "./Rules.tsx";
 import Utils from "./Utils.tsx";
@@ -44,27 +44,54 @@ export class ChessPiece {
 }
 export class PieceMove {
     public move: [ChessPiece, HTMLElement];
-    constructor(piece: ChessPiece, grid: HTMLElement){
+    public piecePreviousPosition: HTMLElement;
+    public isMovePawnDoubleSquare: boolean = false;
+    public isEnPassant: boolean = false;
+    constructor(piece: ChessPiece, grid: HTMLElement, pieceParentElement: HTMLElement){
         this.move = [piece, grid]
+        this.piecePreviousPosition = pieceParentElement
         this.move[0].legalMoves = this.filterIllegalMoves(this.move[0].legalMoves)
+        this.isMovePawnDoubleSquare = this.handleDoubleSquareMovement()
     }
-    public filterIllegalMoves(Moves: React.JSX.Element[]){
-        let moves: React.JSX.Element[] = [];
-        let referee = new Rules()
-
-        return moves;
+    private filterIllegalMoves(Moves: React.JSX.Element[]){
+        let referee = new Rules(this)
+        if(referee.EnPassant){
+            let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.piecePreviousPosition.id) !== -1);
+            let indexInRow = board[indexInCol].findIndex(square => square.key === this.piecePreviousPosition.id);
+            let color: string = this.move[0].piece.pieceElement.id.includes("White") ? "Black" : "White";
+            let lit =  this.move[0].piece.pieceElement.id.includes("White") ? -1 : 1;
+            const leftDiagonalSquare = board[indexInCol + lit][indexInRow - lit];
+            
+            if (board[indexInCol][indexInRow - lit].props.children?.props.id.includes(color)) {
+                this.move[0].legalMoves.push(leftDiagonalSquare);
+            }
+            const rightDiagonalSquare = board[indexInCol + lit][indexInRow + lit];
+            if (board[indexInCol][indexInRow + lit].props.children?.props.id.includes(color)) {
+                this.move[0].legalMoves.push(rightDiagonalSquare);
+            }
+            this.isEnPassant = true;
+        }
+        return Moves;
     }
     public MoveIsIllegal(){
         const referee = this.move[0].legalMoves
             .flat()
             .some((parentElement: React.JSX.Element) => {
                 const parentId = parentElement.props.id;
-                console.log(parentId )
-                console.log(this.move[1].id)
                 return parentId === this.move[1].id;
             });
-            console.log(referee)
         return referee;
+    }
+    private handleDoubleSquareMovement() {
+        if(this.piecePreviousPosition.id.includes("2") && this.move[1].id.includes("4") && 
+        this.move[0].pieceType == "Pawn" && this.move[0].piece.pieceElement.id.includes("White")){
+            return true;
+        }
+        if(this.piecePreviousPosition.id.includes("7") && this.move[1].id.includes("5") && 
+        this.move[0].pieceType == "Pawn" && this.move[0].piece.pieceElement.id.includes("Black")){
+            return true;
+        }
+        return false;
     }
 }
 
@@ -80,15 +107,8 @@ export class Pawn {
         const moves: React.JSX.Element[] = [];
         let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.pieceElement.parentElement?.id) !== -1);
         let indexInRow = board[indexInCol].findIndex(square => square.key === this.pieceElement.parentElement?.id);
-        let color: string;
-        let lit = -1;
-        if (this.pieceElement.id.includes("White")){
-            color = "Black";
-
-        } else {
-            color = "White";
-            lit = 1;
-        }
+        let color: string = this.pieceElement.id.includes("White") ? "Black" : "White";
+        let lit =  this.pieceElement.id.includes("White") ? -1 : 1;
         try{
                 const frontSquare = board[indexInCol + lit][indexInRow];
                 if (frontSquare.props.children?.props.id === 'none' || frontSquare.props.children?.props.id === undefined) {
@@ -110,7 +130,6 @@ export class Pawn {
         } catch {
 
         }
-        console.log(moves)
         return moves;
     }
 }

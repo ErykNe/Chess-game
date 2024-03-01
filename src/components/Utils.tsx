@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { board }  from "./ChessBoard.tsx";
 import './ChessBoard.css';
+import { ChessPiece } from "./Pieces.tsx";
 
 export default {
 
@@ -48,6 +49,11 @@ export default {
           }
       }
     },
+    removePiece: function removePiece(taken: HTMLElement): void {
+      taken.style.display = 'none';
+      taken.id = 'none';
+      taken.innerHTML = 'none';
+    },
   
     alignPiece: function alignPiece(childElement: HTMLElement, secondChildElement: HTMLElement, newDiv: HTMLElement): void {
       childElement.style.width = `${newDiv.clientWidth}px`;
@@ -65,7 +71,7 @@ export default {
           divx.removeChild(x)
           divy.appendChild(x)
       }
-    }
+    },
 };
 function findEmptyField(): HTMLElement | null {
     const hiddenPieces = document.querySelectorAll('.chessPiece[style*="display: none"]');

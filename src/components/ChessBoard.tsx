@@ -2,15 +2,16 @@ import React, { Component } from 'react';
 import './ChessBoard.css';
 import Utils from './Utils.tsx';
 import Event from './Event.tsx';
+import Rules from './Rules.tsx';
 import { ChessPiece, PieceMove } from './Pieces.tsx';
 
-const verticalAxis = [1,2,3,4,5,6,7,8]
-const horizontalAxis = ['a','b','c','d','e','f','g','h']
+export const verticalAxis = [1,2,3,4,5,6,7,8]
+export const horizontalAxis = ['a','b','c','d','e','f','g','h']
 
 export let board : React.JSX.Element [][] = ChessGrids()
-export let piecesArray: ChessPiece[][] = [[]];
-LoadPieces(board)
-
+LoadPiecesOnBoard(board)
+export let previousMovement: PieceMove;
+export let turn: string = "White";
 export default function ChessBoard(){
     return <div id="chessBoard">{board}</div>
 }
@@ -36,7 +37,7 @@ export function ChessGrids(){
     }
     return board;
 }
-export function LoadPieces(board: React.JSX.Element[][]) {
+export function LoadPiecesOnBoard(board: React.JSX.Element[][]) {
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
             let PieceName = "none";
@@ -86,7 +87,6 @@ export function LoadPieces(board: React.JSX.Element[][]) {
     }
 }
 
-
 export function changePiecePosition(e: React.MouseEvent) {
 
     
@@ -103,19 +103,30 @@ export function changePiecePosition(e: React.MouseEvent) {
     } 
 
 
-    console.log(newDiv, oldDiv, childElement, secondChildElement)
-
     
     let Piece = new ChessPiece(childElement, oldDiv)
-    Piece.Movement = new PieceMove(Piece, newDiv)
+    Piece.Movement = new PieceMove(Piece, newDiv, oldDiv)
 
     if(!Piece.Movement.MoveIsIllegal()){
         Utils.movePieceBack(Piece.piece.pieceElement)
         return
     } 
+    const referee = new Rules(Piece.Movement)
+    referee.CheckCompatibilityWithTurn(childElement)
+    if(referee.TurnDoesntMatchPieceType){
+        Utils.movePieceBack(Piece.piece.pieceElement)
+        return
+    }
     if(chessPieceElements.length > 1){
         Utils.takePiece(secondChildElement, newDiv)
         secondChildElement = newDiv.firstChild as HTMLElement
+    }
+    if(Piece.Movement.isEnPassant){
+        try{
+            secondChildElement = previousMovement.move[0].piece.pieceElement
+            Utils.removePiece(secondChildElement)
+            secondChildElement = newDiv.firstChild as HTMLElement
+        } catch {}
     }
     Utils.alignPiece(childElement, secondChildElement, newDiv)
     Utils.replacePieces(childElement, secondChildElement, oldDiv, newDiv)
@@ -132,5 +143,7 @@ export function changePiecePosition(e: React.MouseEvent) {
         board[indexInCol2][indexInRow2] = React.cloneElement(board[indexInCol2][indexInRow2], { children: temp })
     }  
 
-    
+    turn = turn === "White" ? "Black" : "White"
+    previousMovement = Piece.Movement
+
 }
