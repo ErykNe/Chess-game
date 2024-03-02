@@ -2,10 +2,7 @@ import React from "react";
 import ChessBoard from "./ChessBoard";
 import { board, turn, previousMovement, horizontalAxis } from "./ChessBoard.tsx";
 import { ChessPiece, PieceMove } from "./Pieces.tsx";
-
-export let hasKingMoved: [boolean, boolean] = [false, false];
-export let hasRook1Moved: [boolean, boolean] = [false, false];
-export let hasRook2Moved: [boolean, boolean] = [false, false];
+import { BlackKingMoved, BlackRook1Moved, BlackRook2Moved, WhiteKingMoved, WhiteRook1Moved, WhiteRook2Moved } from "./Essentials.tsx";
 
 export default class Rules {
    private Turn: string = turn
@@ -17,7 +14,10 @@ export default class Rules {
    public isCheckmate: boolean
    public isPawnPromoting: boolean
    public EnPassant: boolean
-   public Castle: boolean
+   public ShortCastle: boolean
+   public LongCastle: boolean
+   public WhiteCanCastle: boolean
+   public BlackCanCastle: boolean
    public TurnDoesntMatchPieceType: boolean
 
    constructor(movement: PieceMove){
@@ -26,7 +26,7 @@ export default class Rules {
         this.isCheckmate = this.CheckCheckmate()
         this.isPawnPromoting = this.CheckPawnPromoting()
         this.EnPassant = this.CheckEnPassant()
-        this.Castle = this.CheckCastle()
+        this.CheckCastle()
    } 
    private CheckKingUnderAttack() {
         return false;
@@ -61,48 +61,54 @@ export default class Rules {
    private CheckCastle(){
         try {
             if(this.movement.move[0].piece.pieceElement.id.includes("King")){
-                if(this.movement.move[0].piece.pieceElement.id.includes("White")){
+                if(this.movement.move[0].piece.pieceElement.id.includes("White") && !WhiteKingMoved){
                     if(this.movement.piecePreviousPosition.id.includes("1")){
                         console.log(board[7][0].props.children?.props.id)
-                        if(board[7][0].props.children.props.id.includes("Rook")){
-                            console.log(board[7][1].props.children.props.id)
-                            console.log(board[7][2].props.children.props.id)
-                            console.log(board[7][3].props.children.props.id)
-                            if(board[7][1].props.children.props.id.includes("none") && 
-                            board[7][2].props.children.props.id.includes("none") && 
-                            board[7][3].props.children.props.id.includes("none") && hasKingMoved[0] == false && hasRook1Moved[0] == false && hasRook2Moved[0] == false){
-                                console.log("CASTLE AVAILABLE")
-                                return true
+                        if(!WhiteRook1Moved){
+                            console.log("We gettin theere")
+                            if((board[7][1].props.children.props.id.includes("none") || board[7][1].props.children.props.id == undefined) && 
+                            (board[7][2].props.children.props.id.includes("none") || board[7][2].props.children.props.id == undefined) && 
+                            (board[7][3].props.children.props.id.includes("none") || board[7][3].props.children.props.id == undefined)){
+                                console.log("LONG CASTLE AVAILABLE")
+                                this.LongCastle = true
+                                this.WhiteCanCastle = true
                             }
                         }
-                        if(board[7][7].props.children.props.id.includes("Rook")){
+                        if(!WhiteRook2Moved){
                             console.log("We gettin theere")
-                            if(board[7][5].props.children.props.id.includes("none") && board[7][6].props.children.props.id.includes("none") 
-                            && hasKingMoved[0] == false && hasRook1Moved[0] == false && hasRook2Moved[0] == false){
-                                console.log("CASTLE AVAILABLE")
-                                return true
+                            if((board[7][5].props.children.props.id.includes("none") || board[7][5].props.children.props.id == undefined)
+                            && (board[7][6].props.children.props.id.includes("none") || board[7][6].props.children.props.id == undefined)){
+                                console.log("SHORT CASTLE AVAILABLE")
+                                this.ShortCastle = true
+                                this.WhiteCanCastle = true
                             }
                         }
                     }
-                } else {
+                } else if (this.movement.move[0].piece.pieceElement.id.includes("Black") && !BlackKingMoved) {
                     if(this.movement.piecePreviousPosition.id.includes("8")){
                         console.log(board[0][0].props.children?.props.id)
-                        if(board[0][0].props.children.props.id.includes("Rook")){
-                            console.log(board[0][1].props.children.props.id)
-                            console.log(board[0][2].props.children.props.id)
-                            console.log(board[0][3].props.children.props.id)
-                            if(board[0][1].props.children.props.id.includes("none") && 
-                            board[0][2].props.children.props.id.includes("none") && 
-                            board[0][3].props.children.props.id.includes("none")){
-                                console.log("CASTLE AVAILABLE")
-                                return true
+                        if(!BlackRook1Moved){
+                            console.log("We gettin theere")
+                            console.log(board[0][1].props.children?.props.id)
+                            console.log(board[0][2].props.children?.props.id)
+                            console.log(board[0][3].props.children?.props.id)
+                            if((board[0][1].props.children.props.id.includes("none") || board[0][1].props.children.props.id == undefined) &&
+                            (board[0][2].props.children.props.id.includes("none") || board[0][2].props.children.props.id == undefined) && 
+                            (board[0][3].props.children.props.id.includes("none") || board[0][3].props.children.props.id == undefined)){
+                                console.log("LONG CASTLE AVAILABLE")
+                                this.LongCastle = true
+                                this.BlackCanCastle = true
                             }
                         }
-                        if(board[0][7].props.children.props.id.includes("Rook")){
+                        if(!BlackRook2Moved){
                             console.log("We gettin theere")
-                            if(board[0][5].props.children.props.id.includes("none") && board[0][6].props.children.props.id.includes("none")){
-                                console.log("CASTLE AVAILABLE")
-                                return true
+                            console.log(board[0][5].props.children?.props.id)
+                            console.log(board[0][6].props.children?.props.id)
+                            if((board[0][5].props.children.props.id.includes("none") || board[0][5].props.children.props.id == undefined) && 
+                            (board[0][6].props.children.props.id.includes("none") || board[0][6].props.children.props.id == undefined)){
+                                console.log("SHORT CASTLE AVAILABLE")
+                                this.ShortCastle = true
+                                this.BlackCanCastle = true
                             }
                         }
                     }
@@ -118,13 +124,45 @@ export default class Rules {
             this.TurnDoesntMatchPieceType =  this.Turn === "White"
         }
    }
-}
-export function setHasKingMoved(value: [boolean, boolean]): void {
-    hasKingMoved = value;
-}
-export function setHasRook1Moved(value: [boolean, boolean]): void {
-    hasRook1Moved = value;
-}
-export function setHasRook2Moved(value: [boolean, boolean]): void {
-    hasRook2Moved = value;
+   public EnPassantExecute(){
+            let indexInCol = board.findIndex(row => row.findIndex(square => square.key === this.movement.piecePreviousPosition.id) !== -1);
+            let indexInRow = board[indexInCol].findIndex(square => square.key === this.movement.piecePreviousPosition.id);
+            let lit =  this.movement.move[0].piece.pieceElement.id.includes("White") ? -1 : 1;
+            const leftDiagonalSquare = board[indexInCol + lit][indexInRow - lit];
+            console.log(board[indexInCol][indexInRow - lit].key)
+            console.log(previousMovement.move[0].gridElement.id)
+            
+            if (board[indexInCol][indexInRow - lit].key?.at(4) === previousMovement.move[0].gridElement.id[4]) {
+                this.movement.move[0].legalMoves.push(leftDiagonalSquare);
+                this.movement.move[0].piece.EnPassantMove = (leftDiagonalSquare)
+            }
+            const rightDiagonalSquare = board[indexInCol + lit][indexInRow + lit];
+            if (board[indexInCol][indexInRow + lit].key?.at(4) === previousMovement.move[0].gridElement.id[4]) {
+                this.movement.move[0].legalMoves.push(rightDiagonalSquare);
+                this.movement.move[0].piece.EnPassantMove = (rightDiagonalSquare)
+            }
+            this.movement.isEnPassant = true;
+   }
+   public BlackCastleExecute(CastleType: string){
+        console.log("RRRRRRRRRAAAAAAAAAAAAHHHHHHHHHHHH")
+        if(CastleType == "short")
+            this.movement.move[0].legalMoves.push(board[0][6])
+            this.movement.move[0].piece.castleMove.push(board[0][6])
+        if (CastleType == "long")
+            this.movement.move[0].legalMoves.push(board[0][2])
+            this.movement.move[0].piece.castleMove.push(board[0][2])
+        console.log(this.movement.move[0].piece.castleMove)    
+        this.movement.isCastle = true
+   }
+   public WhiteCastleExecute(CastleType: string){
+        console.log("RRRRRRRRRAAAAAAAAAAAAHHHHHHHHHHHH")
+        if(CastleType == "short")
+            this.movement.move[0].legalMoves.push(board[7][6])
+            this.movement.move[0].piece.castleMove.push(board[7][6])
+        if (CastleType == "long")
+            this.movement.move[0].legalMoves.push(board[7][2])
+            this.movement.move[0].piece.castleMove.push(board[7][2])
+        console.log(this.movement.move[0].piece.castleMove)       
+        this.movement.isCastle = true
+   }
 }

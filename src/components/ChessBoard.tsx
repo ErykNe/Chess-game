@@ -4,12 +4,14 @@ import Utils from './Utils.tsx';
 import Event from './Event.tsx';
 import Rules from './Rules.tsx';
 import { ChessPiece, PieceMove } from './Pieces.tsx';
+import Essentials from './Essentials.tsx';
 
 export const verticalAxis = [1,2,3,4,5,6,7,8]
 export const horizontalAxis = ['a','b','c','d','e','f','g','h']
 
 export let board : React.JSX.Element [][] = ChessGrids()
 LoadPiecesOnBoard(board)
+Essentials.Initialize()
 export let previousMovement: PieceMove;
 export let turn: string = "White";
 export default function ChessBoard(){
@@ -125,6 +127,16 @@ export function changePiecePosition(e: React.MouseEvent) {
         Utils.takePiece(previousMovement.move[0].piece.pieceElement, document.getElementById(previousMovement.move[1].id) as HTMLElement)
         secondChildElement = newDiv.firstChild as HTMLElement
     }
+
+    if(Piece.Movement.isCastle && Piece.piece.castleMove[0].key == newDiv.id){
+        console.log("Castle")
+        
+    }
+    if(Piece.Movement.isCastle && Piece.piece.castleMove[1].key == newDiv.id){
+        console.log("Castle")
+
+    }
+    
  
     Utils.alignPiece(childElement, secondChildElement, newDiv)
     Utils.replacePieces(childElement, secondChildElement, oldDiv, newDiv)
@@ -143,5 +155,6 @@ export function changePiecePosition(e: React.MouseEvent) {
 
     turn = turn === "White" ? "Black" : "White"
     previousMovement = Piece.Movement
+    Essentials.Update()
 
 }
