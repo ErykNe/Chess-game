@@ -1,9 +1,11 @@
 import React from "react";
-import { board, previousMovement, turn } from "./ChessBoard.tsx";
+import { board } from "./ChessBoard.tsx";
 import Utils from "./Utils";
+import { Piece } from "./Pieces.tsx";
 
 export let BlackKingMoved: boolean, WhiteKingMoved: boolean, BlackRook1Moved: boolean, BlackRook2Moved: boolean, WhiteRook1Moved: boolean, WhiteRook2Moved: boolean
-
+export let turn: string = "White";
+export let previousMovement: [Piece, any, any, any, string];
 
 
 export default {
@@ -20,27 +22,37 @@ export default {
         arr.push(BlackKingMoved, WhiteKingMoved, BlackRook1Moved, BlackRook2Moved, WhiteRook1Moved, WhiteRook2Moved)
         return arr
     },
-    Update: function Update(): void {
-        if(previousMovement.move[0].pieceType == "King" && previousMovement.piecePreviousPosition.id.includes("e1")){
-            WhiteKingMoved = true
+    UpdateAccordingly: function Update(childElement:HTMLElement, secondChildElement:HTMLElement, oldDiv:HTMLElement, newDiv:HTMLElement, piece:Piece): void {
+        if(newDiv.id.includes("5") || newDiv.id.includes("4")){
+            previousMovement = [piece, childElement, oldDiv, newDiv, "DoubleSquarePawnMovement"];
+        } else {
+            previousMovement = [piece, childElement, oldDiv, newDiv, ""];
         }
-        if(previousMovement.move[0].pieceType == "King" && previousMovement.piecePreviousPosition.id.includes("e8")){
-            BlackKingMoved = true
+        if(childElement.id.includes("White")){
+            turn = "Black";
+        } else {
+            turn = "White";
         }
-
-        if(previousMovement.move[0].pieceType == "Rook" && previousMovement.piecePreviousPosition.id.includes("a1")){
-            WhiteRook1Moved = true
+        switch(previousMovement[1].id){
+            case "WhiteKing":
+                WhiteKingMoved = true
+                break;
+            case "BlackKing":
+                BlackKingMoved = true
+                break;                      
         }
-        if(previousMovement.move[0].pieceType == "Rook" && previousMovement.piecePreviousPosition.id.includes("h1")){
-            WhiteRook2Moved = true
+        if(previousMovement[2].id.includes("h1")){
+            WhiteRook2Moved = true;   
         }
-        if(previousMovement.move[0].pieceType == "Rook" && previousMovement.piecePreviousPosition.id.includes("a8")){
-           BlackRook1Moved = true
+        if(previousMovement[2].id.includes("a1")){
+            WhiteRook1Moved = true 
         }
-        if(previousMovement.move[0].pieceType == "Rook" && previousMovement.piecePreviousPosition.id.includes("h8")){
-            BlackRook2Moved = true
+        if(previousMovement[2].id.includes("h8")){
+            BlackRook2Moved = true    
         }
-
+        if(previousMovement[2].id.includes("a8")){
+            BlackRook1Moved = true 
+        }
         console.log(WhiteKingMoved, BlackKingMoved, WhiteRook1Moved, WhiteRook2Moved, BlackRook1Moved, BlackRook2Moved)
     }
 }
