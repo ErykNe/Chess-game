@@ -1,7 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { board }  from "./ChessBoard.tsx";
+import { board, chessboardGridModel, piecesBoard, promotionGridModel }  from "./ChessBoard.tsx";
 import './ChessBoard.css';
+import Prediction from "./Prediction.tsx";
+import { turn } from "./Essentials.tsx";
 
 export default {
     movePieceBack: function movePieceBack(piece: HTMLElement): void {
@@ -92,6 +94,45 @@ export default {
         board[index1] = React.cloneElement(board[index1], { children: board[index2].props.children })
         board[index2] = React.cloneElement(board[index2], { children: temp })
       }    
+    },
+    promotePawn(promotionType:string){
+      promotionGridModel.current?.classList.add("hidden")
+      chessboardGridModel.current?.classList.remove("disabled")
+      console.log(promotionType)
+      for(let i = 0; i < piecesBoard.length; i++){
+        if(board[i].props.children?.key.includes("WhitePawn") && board[i].key?.includes("8")){
+          switch (promotionType) {
+            case "Queen":
+                updatePiece("WhiteQueen", require('../assets/Chess_qlt45.svg.png'), i);
+                break;
+            case "Rock":
+                updatePiece("WhiteRock", require('../assets/Chess_rlt45.svg.png'), i);
+                break;
+            case "Knight":
+                updatePiece("WhiteKnight", require('../assets/Chess_nlt45.svg.png'), i);
+                break;
+            case "Bishop":
+                updatePiece("WhiteBishop", require('../assets/Chess_blt45.svg.png'), i);
+                break;
+          }
+        }
+        if(board[i].props.children?.key.includes("BlackPawn") && board[i].key?.includes("1")){
+          switch(promotionType){
+            case "Queen":
+                updatePiece("BlackQueen", require('../assets/Chess_qdt45.svg.png'), i);
+                break;
+            case "Rock":
+                updatePiece("BlackRock", require('../assets/Chess_rdt45.svg.png'), i);
+                break;
+            case "Knight":
+                updatePiece("BlackKnight", require('../assets/Chess_ndt45.svg.png'), i);
+                break;
+            case "Bishop":
+                updatePiece("BlackBishop", require('../assets/Chess_bdt45.svg.png'), i);
+                break; 
+          }
+        }
+      }
     }
 };
 function findEmptyField(): HTMLElement | null {
@@ -119,3 +160,38 @@ function convertJsxToDomNode(jsxElement: JSX.Element): Node {
     ReactDOM.render(jsxElement, container);
     return container.firstChild as Node;
 }
+
+function updatePiece(newKey, newSrc, i) {
+  const updatedElement = React.cloneElement(board[i], { 
+      children: React.cloneElement(board[i].props.children, { key: newKey, src: newSrc }) 
+  });
+  board[i] = updatedElement;
+
+  const thisIsBs = Array.from(chessboardGridModel.current?.children) as any[];
+  thisIsBs[i].children[0].id = newKey;
+  thisIsBs[i].children[0].src = newSrc;
+}
+/*export function KingsUnderCheck(){
+  let boardAfterMove = Prediction.getBoardPrediction(this.movement)
+  let gridBoardPrediction = Prediction.getGridsPrediction(boardAfterMove)
+  let piecesBoardPrediction = Prediction.getPiecesPrediction(boardAfterMove, gridBoardPrediction)
+  let kingWhiteIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("WhiteKing"));
+  let kingBlackIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
+  if (kingBlackIndex && kingWhiteIndex) {
+      for (let i = 0; i < boardAfterMove.length; i++) {
+          if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingBlackIndex].key) && turn == "Black" &&
+          piecesBoardPrediction[i].piece.pieceElement?.key.includes("White")
+              && !(boardAfterMove[i].key == this.movement[2].id)) {
+                  this.KingUnderCheckKey = "BlackKing"
+                  return true
+          }
+          if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingWhiteIndex].key) && turn == "White"  &&
+          piecesBoardPrediction[i].piece.pieceElement?.key.includes("Black")
+          && !(boardAfterMove[i].key == this.movement[2].id)) {
+              this.KingUnderCheckKey = "WhiteKing"
+              return true
+          }
+      }
+  }
+  return false;
+}*/

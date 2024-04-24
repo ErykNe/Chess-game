@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useRef } from 'react';
 import './ChessBoard.css';
 import Utils from './Utils.tsx';
 import Event from './Event.tsx';
@@ -8,6 +8,9 @@ import Essentials, { previousMovement, turn } from './Essentials.tsx';
 
 export const verticalAxis = [1,2,3,4,5,6,7,8]
 export const horizontalAxis = ['a','b','c','d','e','f','g','h']
+export let promotionGridModel: any;
+export let chessboardGridModel: any;
+export let endGameGridModel: any;
 
 export let board : React.JSX.Element [] = ChessGrids()
     LoadBoard(board)
@@ -15,11 +18,29 @@ export let gridsBoard: any [] = []
     LoadGrids(gridsBoard)     
 export let piecesBoard: Piece [] = []
     LoadPieces(piecesBoard)       
-
 Essentials.Initialize()    
 
 export default function ChessBoard(){
-    return <div id="chessBoard">{board}</div>
+    promotionGridModel = useRef<HTMLDivElement>(null)
+    chessboardGridModel = useRef<HTMLDivElement>(null)
+    endGameGridModel = useRef<HTMLDivElement>(null)
+    return (
+    <>
+    <div id="end-game-grid" className="hidden" ref={endGameGridModel}>
+        <p>Winner here</p>
+        <a id="btn">New Game</a>
+    </div>
+    <div id="pawn-promotion-grid" className="hidden" ref={promotionGridModel}>
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Queen")}></img>     
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Rock")}></img>     
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Knight")}></img>     
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Bishop")}></img>     
+    </div>    
+    <div id="chessBoard" ref={chessboardGridModel}>
+        {board}
+    </div>
+    </>
+    )
 }
 export function ChessGrids(){
     let board : React.JSX.Element [] = []
@@ -140,6 +161,7 @@ export function LoadGrids(gridsBoard : any []){
 export function changePiecePosition(e: React.MouseEvent) {
     let { newDiv, oldDiv, childElement, secondChildElement, pieceCapture} = Utils.getElementsFromPoint(e);
     const piece : Piece = piecesBoard[board.findIndex(elem => elem.key == oldDiv.id)]
+    console.log(piece.piece.legalMoves)
     let rules = new Rules([piece, childElement, oldDiv, newDiv])
     rules.adjustMoves(rules, newDiv)
     piece.checkMove(newDiv)
@@ -151,6 +173,19 @@ export function changePiecePosition(e: React.MouseEvent) {
             if(pieceCapture){
                 Utils.takePiece(secondChildElement, newDiv)
                 secondChildElement = newDiv.firstChild as HTMLElement
+            }
+            if (rules.PawnPromotion()) {
+                promotionGridModel.current?.classList.remove("hidden");
+                chessboardGridModel.current?.classList.add("disabled");
+            
+                const pieces = rules.BlackPromotion
+                    ? ['Chess_qdt45.svg.png', 'Chess_rdt45.svg.png', 'Chess_ndt45.svg.png', 'Chess_bdt45.svg.png']
+                    : ['Chess_qlt45.svg.png', 'Chess_rlt45.svg.png', 'Chess_nlt45.svg.png', 'Chess_blt45.svg.png'];
+            
+                const childImg = Array.from(promotionGridModel.current?.children) as any[];
+                childImg.forEach((img, index) => {
+                    img.src = require(`../assets/${pieces[index]}`);
+                });
             }
             referee.adjustPiecesOnBoardAccordingly(rules, childElement, secondChildElement, oldDiv, newDiv, e)
         } else {
@@ -167,4 +202,7 @@ export function changePiecePosition(e: React.MouseEvent) {
     Essentials.UpdateAccordingly(childElement, secondChildElement, oldDiv, newDiv, piece)
     LoadGrids(gridsBoard)
     LoadPieces(piecesBoard)
+    if(rules.Checkmate()){
+        endGameGridModel.current?.classList.remove("hidden")
+    }
 }

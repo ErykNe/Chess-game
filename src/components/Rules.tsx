@@ -29,10 +29,14 @@ export default class Referee {
         let kingBlackIndex = this.boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
         if (kingBlackIndex && kingWhiteIndex) {
             for (let i = 0; i < this.boardAfterMove.length; i++) {
-                if (this.piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == this.gridBoardPrediction[kingBlackIndex].key) && turn == "Black") {
+                if (this.piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == this.gridBoardPrediction[kingBlackIndex].key) && turn == "Black" &&
+                this.piecesBoardPrediction[i].piece.pieceElement?.key.includes("White")
+                    && !(this.boardAfterMove[i].key == this.movement[2].id)) {
                     this.passedTheMove = false;
                 }
-                if (this.piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == this.gridBoardPrediction[kingWhiteIndex].key) && turn == "White") {
+                if (this.piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == this.gridBoardPrediction[kingWhiteIndex].key) && turn == "White"  &&
+                this.piecesBoardPrediction[i].piece.pieceElement?.key.includes("Black")
+                && !(this.boardAfterMove[i].key == this.movement[2].id)) {
                     this.passedTheMove = false;
                 }
             }
@@ -86,6 +90,8 @@ export class Rules {
     public EnPassantExecuted: boolean = false
     public CastleExecuted: boolean = false
     public ShortCastle:boolean
+    public BlackPromotion:boolean
+    public KingUnderCheckKey: string
     public CastleType:string[] = []
 
     constructor(movement:any){
@@ -159,29 +165,29 @@ export class Rules {
         try {
             if(this.movement[1].id == "WhiteKing" && !Essentials.Read[1]){
                 if((board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 1].props?.children?.key.includes("none")
-                || board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 2].props?.children?.key.includes("none")
-                || board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none"))
+                && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 2].props?.children?.key.includes("none")
+                && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none"))
                 && !Essentials.Read[4]){
                     this.CastleType.push("LongWhite")
                     bul = true
                 }
                 if((board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 1].props?.children?.key.includes("none")
-                    || board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")) && !Essentials.Read[5]){
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")) && !Essentials.Read[5]){
                     this.CastleType.push("ShortWhite")
                     bul = true                    
                 }
             }
             if(this.movement[1].id == "BlackKing" && !Essentials.Read[0]){
                 if((board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 1].props?.children?.key.includes("none")
-                    || board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")
                     )
                     && !Essentials.Read[2]){
                         this.CastleType.push("ShortBlack")
                         bul = true
                     }
                     if(((board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 1].props?.children?.key.includes("none")
-                        || board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 2].props?.children?.key.includes("none"))
-                    || board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none")) && !Essentials.Read[3]){
+                        && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 2].props?.children?.key.includes("none"))
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none")) && !Essentials.Read[3]){
                         this.CastleType.push("LongBlack")
                         bul = true                    
                     }
@@ -190,5 +196,20 @@ export class Rules {
             console.error("Error in CastleAvailable:", error);
         }
         return bul
+    }
+    public PawnPromotion(){
+        if(this.movement[0].piece.pieceElement?.key.includes("BlackPawn") && this.movement[3].id.includes("1")){
+            console.log("Black Pawn promotion!")
+            this.BlackPromotion = true
+            return true
+        }
+        if(this.movement[0].piece.pieceElement?.key.includes("WhitePawn") && this.movement[3].id.includes("8")){
+            console.log("White Pawn promotion!")
+            this.BlackPromotion = false
+            return true
+        }
+    }
+    public Checkmate(){
+        return false
     }
 }

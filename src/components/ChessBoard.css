@@ -18,6 +18,71 @@
     user-select: none;
     animation: slideIn 0.5s ease-in-out;
 }
+#chessBoard.disabled {
+  pointer-events: none;
+}
+#pawn-promotion-grid{
+  width: 900px;
+  height: 400px;
+  display:flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: space-around;
+  background-color: rgba(0, 0, 0, 0.638);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -80.5%);
+  box-shadow: 0 0 6px 4px #616467;
+  border: 1px solid #4a4c4e;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  animation: slideIn 0.5s ease-in-out;
+  z-index: 2;
+}
+#pawn-promotion-grid >img {
+  width: 200px;
+  transition-property: background-color,border-color,color,box-shadow,filter;
+  transition-duration: .3s;
+  animation: moveInBottom 1s ease-out;
+  animation-fill-mode: backwards;
+  height: 200px;
+}
+#pawn-promotion-grid.hidden {
+  display: none;
+}
+#pawn-promotion-grid >img:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background-color: #c6c6c67d;
+  color: #686868;
+}
+#end-game-grid {
+  width: 1000px;
+  height: 1000px;
+  display:inline;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content:center;
+  background-color: rgb(255, 255, 255);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -63.5%);
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  animation: appear 4s ease-in-out;
+  z-index: 3;
+}
+#end-game-grid.hidden {
+  display: none;
+}
 .pushedGrids {
   background-color: white;
   margin-top: 0;
@@ -35,6 +100,28 @@
   to {
     top: 50%;
     opacity: 1;
+  }
+}
+@keyframes moveInBottom {
+  0% {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+
+  100% {
+      opacity: 1;
+      transform: translateY(0px);
+  }
+}
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  85% {
+    opacity: 0;
+  }
+  100% {
+      opacity: 1;
   }
 }
 .chessPiece {

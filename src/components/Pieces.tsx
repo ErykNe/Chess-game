@@ -260,9 +260,16 @@ export class Pawn implements ChessPiece {
                         moves.push(doubleFrontSquare);
                     }
                 }
+                try{
                 const leftDiagonalSquare = this.board2D[indexInCol + lit][indexInRow + lit];
                 if (leftDiagonalSquare.props.children?.props.id.includes(color)) {
                     moves.push(leftDiagonalSquare);
+                }
+                } catch{
+                const rightDiagonalSquare = this.board2D[indexInCol + lit][indexInRow - lit];
+                if (rightDiagonalSquare.props.children?.props.id.includes(color)) {
+                    moves.push(rightDiagonalSquare);
+                }
                 }
                 const rightDiagonalSquare = this.board2D[indexInCol + lit][indexInRow - lit];
                 if (rightDiagonalSquare.props.children?.props.id.includes(color)) {

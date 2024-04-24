@@ -1,6 +1,6 @@
 import React from "react";
 import { Pawn, Piece } from "./Pieces.tsx";
-import { LoadGrids, LoadPieces, board, gridsBoard, piecesBoard, previousMovement, turn, horizontalAxis } from "./ChessBoard.tsx";
+import { LoadGrids, LoadPieces, board, gridsBoard, piecesBoard, horizontalAxis } from "./ChessBoard.tsx";
 import Essentials from "./Essentials.tsx";
 
 export default {
