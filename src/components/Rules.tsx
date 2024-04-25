@@ -49,10 +49,22 @@ export default class Referee {
         }
         if(this.movement[4] == "CastleMovement"){
             if(rules.ShortCastle){
-            const rookElements = document.elementsFromPoint(e.clientX + 100, e.clientY)
-            const freeElements = document.elementsFromPoint(e.clientX - 100, e.clientY)
+                let rookElements = document.elementsFromPoint(e.clientX + 90, e.clientY)
+                let freeElements = document.elementsFromPoint(e.clientX - 195, e.clientY)
+                    let a = 0;
+                    while(!rookElements[0].id.includes("Rock")){
+                        rookElements = document.elementsFromPoint(e.clientX + a, e.clientY)
+                        a+=5;
+                    }
+                    let freeChildElement = freeElements[0].firstChild as HTMLElement
+                    let b = 0;
+                    while(!freeChildElement.id.includes("none")){
+                        freeElements = document.elementsFromPoint(e.clientX - 195 + b, e.clientY)
+                        b+=5;
+                        freeChildElement = freeElements[0].firstChild as HTMLElement
+                    }
+                  
             const rookChildElement = rookElements[0] as HTMLElement
-            const freeChildElement = freeElements[0].firstChild as HTMLElement
             const freeDivElement = freeElements[0] as HTMLElement
             const rookDivElement = rookElements[1] as HTMLElement    
             let index1 = board.findIndex(elem => elem.key === newDiv.id) + 1
@@ -65,10 +77,22 @@ export default class Referee {
             Utils.alignPiece(rookChildElement, freeChildElement, freeDivElement)
             Utils.replacePieces(rookChildElement, freeChildElement, rookDivElement, freeDivElement)
             } else {
-                const rookElements = document.elementsFromPoint(e.clientX - 200, e.clientY)
-                const freeElements = document.elementsFromPoint(e.clientX + 100, e.clientY)
+                let rookElements = document.elementsFromPoint(e.clientX - 195, e.clientY)
+                let freeElements = document.elementsFromPoint(e.clientX + 195, e.clientY)
+                    let a = 0;
+                    while(!rookElements[0].id.includes("Rock")){
+                        rookElements = document.elementsFromPoint(e.clientX - a, e.clientY)
+                        a+=5;
+                    }
+                    let freeChildElement = freeElements[0].firstChild as HTMLElement
+                    let b = 0;
+                    while(!freeChildElement.id.includes("none")){
+                        freeElements = document.elementsFromPoint(e.clientX + 150 - b, e.clientY)
+                        b+=5;
+                        freeChildElement = freeElements[0].firstChild as HTMLElement
+                    }
+                  
                 const rookChildElement = rookElements[0] as HTMLElement
-                const freeChildElement = freeElements[0].firstChild as HTMLElement
                 const freeDivElement = freeElements[0] as HTMLElement
                 const rookDivElement = rookElements[1] as HTMLElement    
                 let index1 = board.findIndex(elem => elem.key === newDiv.id) - 2
@@ -209,7 +233,31 @@ export class Rules {
             return true
         }
     }
+    public KingsUnderCheck(){
+        let boardAfterMove = Prediction.getBoardPrediction(this.movement)
+        let gridBoardPrediction = Prediction.getGridsPrediction(boardAfterMove)
+        let piecesBoardPrediction = Prediction.getPiecesPrediction(boardAfterMove, gridBoardPrediction)
+        let kingWhiteIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("WhiteKing"));
+        let kingBlackIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
+        if (kingBlackIndex && kingWhiteIndex) {
+            for (let i = 0; i < boardAfterMove.length; i++) {
+                if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingBlackIndex].key) && turn == "Black" &&
+                piecesBoardPrediction[i].piece.pieceElement?.key.includes("White")
+                    && !(boardAfterMove[i].key == this.movement[2].id)) {
+                        this.KingUnderCheckKey = "BlackKing"
+                        return true
+                }
+                if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingWhiteIndex].key) && turn == "White"  &&
+                piecesBoardPrediction[i].piece.pieceElement?.key.includes("Black")
+                && !(boardAfterMove[i].key == this.movement[2].id)) {
+                    this.KingUnderCheckKey = "WhiteKing"
+                    return true
+                }
+            }
+        }
+        return false;
+    }
     public Checkmate(){
-        return false
+        return this.KingsUnderCheck()
     }
 }

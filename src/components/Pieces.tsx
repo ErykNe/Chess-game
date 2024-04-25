@@ -242,21 +242,16 @@ export class Pawn implements ChessPiece {
         let tem = this.gridsBoard[this.board.findIndex(elem => elem.props?.children == this.pieceElement)];
         let indexInCol = this.board2D.findIndex(row => row.findIndex(square => square === tem) !== -1);
         let indexInRow = this.board2D[indexInCol].findIndex(square => square === tem);
-        let color: string;
-        let lit = -1;
-        if (this.pieceElement.key.includes("White")){
-            color = "Black";
-
-        } else {
-            color = "White";
-            lit = 1;
-        }
+        let color: string = this.pieceElement.key.includes("White") ? "Black" :"White";
+        let lit = this.pieceElement.key.includes("White") ? -1 : 1;
         try{
                 const frontSquare = this.board2D[indexInCol + lit][indexInRow];
                 if (frontSquare.props.children?.props.id === 'none' || frontSquare.props.children?.props.id === undefined) {
                     moves.push(frontSquare);
                     const doubleFrontSquare = this.board2D[indexInCol + lit*2][indexInRow];
-                    if ((doubleFrontSquare && this.board2D[indexInCol][indexInRow].key?.includes("2") || this.board2D[indexInCol][indexInRow].key?.includes("7")) && !doubleFrontSquare.props.children?.props.id.includes(color)) {
+                    if ((doubleFrontSquare && 
+                        (this.board2D[indexInCol][indexInRow].key?.includes("2") || this.board2D[indexInCol][indexInRow].key?.includes("7")))
+                        && (doubleFrontSquare.props.children?.props.id ==='none' || doubleFrontSquare.props.children?.props.id === undefined)) {
                         moves.push(doubleFrontSquare);
                     }
                 }

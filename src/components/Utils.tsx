@@ -171,27 +171,3 @@ function updatePiece(newKey, newSrc, i) {
   thisIsBs[i].children[0].id = newKey;
   thisIsBs[i].children[0].src = newSrc;
 }
-/*export function KingsUnderCheck(){
-  let boardAfterMove = Prediction.getBoardPrediction(this.movement)
-  let gridBoardPrediction = Prediction.getGridsPrediction(boardAfterMove)
-  let piecesBoardPrediction = Prediction.getPiecesPrediction(boardAfterMove, gridBoardPrediction)
-  let kingWhiteIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("WhiteKing"));
-  let kingBlackIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
-  if (kingBlackIndex && kingWhiteIndex) {
-      for (let i = 0; i < boardAfterMove.length; i++) {
-          if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingBlackIndex].key) && turn == "Black" &&
-          piecesBoardPrediction[i].piece.pieceElement?.key.includes("White")
-              && !(boardAfterMove[i].key == this.movement[2].id)) {
-                  this.KingUnderCheckKey = "BlackKing"
-                  return true
-          }
-          if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingWhiteIndex].key) && turn == "White"  &&
-          piecesBoardPrediction[i].piece.pieceElement?.key.includes("Black")
-          && !(boardAfterMove[i].key == this.movement[2].id)) {
-              this.KingUnderCheckKey = "WhiteKing"
-              return true
-          }
-      }
-  }
-  return false;
-}*/
