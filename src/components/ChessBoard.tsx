@@ -3,14 +3,15 @@ import './ChessBoard.css';
 import Utils from './Utils.tsx';
 import Event from './Event.tsx';
 import { Piece } from './Pieces.tsx';
-import Referee, { Rules } from './Rules.tsx';
-import Essentials, { previousMovement, turn } from './Essentials.tsx';
+import Referee, { KingsCheckmated, KingsUnderCheck, Rules } from './Rules.tsx';
+import Essentials, { KingUnderCheckKey, previousMovement, turn } from './Essentials.tsx';
 
 export const verticalAxis = [1,2,3,4,5,6,7,8]
 export const horizontalAxis = ['a','b','c','d','e','f','g','h']
 export let promotionGridModel: any;
 export let chessboardGridModel: any;
 export let endGameGridModel: any;
+export let gameWinner: any;
 
 export let board : React.JSX.Element [] = ChessGrids()
     LoadBoard(board)
@@ -24,17 +25,18 @@ export default function ChessBoard(){
     promotionGridModel = useRef<HTMLDivElement>(null)
     chessboardGridModel = useRef<HTMLDivElement>(null)
     endGameGridModel = useRef<HTMLDivElement>(null)
+    gameWinner = useRef<HTMLParagraphElement>(null)
     return (
     <>
     <div id="end-game-grid" className="hidden" ref={endGameGridModel}>
-        <p>Winner here</p>
-        <a id="btn">New Game</a>
+        <p ref={gameWinner}>Winner is</p>
+        <a id="btn" onMouseDown={e=>newGame(e)}>New Game</a>
     </div>
     <div id="pawn-promotion-grid" className="hidden" ref={promotionGridModel}>
-        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Queen")}></img>     
-        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Rock")}></img>     
-        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Knight")}></img>     
-        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Bishop")}></img>     
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Queen", e)}></img>     
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Rock",e)}></img>     
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Knight", e)}></img>     
+        <img className="chessPiece" id="test" key="test" onMouseDown={e=> Utils.promotePawn("Bishop",e)}></img>     
     </div>    
     <div id="chessBoard" ref={chessboardGridModel}>
         {board}
@@ -158,16 +160,18 @@ export function LoadGrids(gridsBoard : any []){
         }
     }
 }
+
+export let rules;
+export let referee;
 export function changePiecePosition(e: React.MouseEvent) {
     let { newDiv, oldDiv, childElement, secondChildElement, pieceCapture} = Utils.getElementsFromPoint(e);
     const piece : Piece = piecesBoard[board.findIndex(elem => elem.key == oldDiv.id)]
-    console.log(piece.piece.legalMoves)
-    let rules = new Rules([piece, childElement, oldDiv, newDiv])
+    rules = new Rules([piece, childElement, oldDiv, newDiv])
     rules.adjustMoves(rules, newDiv)
     piece.checkMove(newDiv)
     if(piece.passedTheMove){
         let prop = rules.EnPassantExecuted ? "EnPassantMovement" : rules.CastleExecuted ? "CastleMovement" : "";
-        let referee = new Referee([piece, childElement, oldDiv, newDiv, prop])
+        referee = new Referee([piece, childElement, oldDiv, newDiv, prop])
         referee.checkMove()
         if(referee.passedTheMove){
             if(pieceCapture){
@@ -202,7 +206,31 @@ export function changePiecePosition(e: React.MouseEvent) {
     Essentials.UpdateAccordingly(childElement, secondChildElement, oldDiv, newDiv, piece)
     LoadGrids(gridsBoard)
     LoadPieces(piecesBoard)
-    if(rules.Checkmate()){
-        endGameGridModel.current?.classList.remove("hidden")
+    const array = Array.from(chessboardGridModel.current?.children) as any[];
+    const grid = array.filter(elem => elem.id == newDiv.id)
+    for(let i = 0; i < array.length; i++){
+        array[i].style.boxShadow = '';
+        array[i].style.outline = '';
+        array[i].style.outlineOffset = '';
     }
+    grid[0].style.boxShadow = 'inset 0 0 50px rgba(255, 255, 0, 0.5)';
+    grid[0].style.outline = '3px solid rgba(255, 255, 0, 0.5)';
+    grid[0].style.outlineOffset = '-3px';
+    if(KingsUnderCheck()){
+        const kingDiv = array.find(elem => elem.children[0]?.id.includes(KingUnderCheckKey))
+        kingDiv.style.boxShadow = 'inset 0 0 50px rgba(255, 0, 0, 0.45)';
+        kingDiv.style.outline = '3px solid rgba(255, 0, 0, 0.35)';
+        kingDiv.style.outlineOffset = '-3px';
+        if(KingsCheckmated(array)){
+            if(KingUnderCheckKey == "BlackKing"){
+                gameWinner.current.innerText = "White wins!"
+            } else {
+                gameWinner.current.innerText = "Black wins!"
+            }
+            endGameGridModel.current?.classList.remove("hidden")
+        }
+    } 
+}
+function newGame(e: React.MouseEvent){
+    
 }

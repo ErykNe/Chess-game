@@ -1,7 +1,9 @@
-import { changePiecePosition } from "./ChessBoard.tsx"
+import { changePiecePosition, chessboardGridModel, endGameGridModel, gameWinner } from "./ChessBoard.tsx"
 import Utils from "./Utils.tsx"
 import React from "react"
 import './ChessBoard.css';
+import { KingsCheckmated, KingsUnderCheck } from "./Rules.tsx";
+import { KingUnderCheckKey } from "./Essentials.tsx";
 
 let PieceActive: HTMLElement | null = null
 export default{
@@ -40,10 +42,11 @@ export default{
           const piece = e.target as HTMLElement
           if (pushedGridsElements.some(element => element.className == "pushedGrids") && piece.className == "chessPiece") {
             changePiecePosition(e)
-          } else if (piece.className == "chessPiece") {
+            PieceActive = null;
+            
+          }  else if (piece.className == "chessPiece") {
             Utils.movePieceBack(piece)
           }
-          PieceActive = null;
         }
       }
 }

@@ -6,7 +6,11 @@ import { Piece } from "./Pieces.tsx";
 export let BlackKingMoved: boolean, WhiteKingMoved: boolean, BlackRook1Moved: boolean, BlackRook2Moved: boolean, WhiteRook1Moved: boolean, WhiteRook2Moved: boolean
 export let turn: string = "White";
 export let previousMovement: [Piece, any, any, any, string];
+export let KingUnderCheckKey: string
 
+export function setKingUnderCheckKey(str:string){
+    KingUnderCheckKey = str
+}
 
 export default {
     Initialize: function Initialize(): void {
@@ -53,6 +57,5 @@ export default {
         if(previousMovement[2].id.includes("a8")){
             BlackRook1Moved = true 
         }
-        console.log(WhiteKingMoved, BlackKingMoved, WhiteRook1Moved, WhiteRook2Moved, BlackRook1Moved, BlackRook2Moved)
     }
 }

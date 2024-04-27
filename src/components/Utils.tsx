@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { board, chessboardGridModel, piecesBoard, promotionGridModel }  from "./ChessBoard.tsx";
+import { LoadBoard, LoadGrids, LoadPieces, board, changePiecePosition, chessboardGridModel, endGameGridModel, gridsBoard, piecesBoard, promotionGridModel }  from "./ChessBoard.tsx";
 import './ChessBoard.css';
 import Prediction from "./Prediction.tsx";
-import { turn } from "./Essentials.tsx";
+import { KingUnderCheckKey, turn } from "./Essentials.tsx";
+import { KingsCheckmated, KingsUnderCheck } from "./Rules.tsx";
 
 export default {
     movePieceBack: function movePieceBack(piece: HTMLElement): void {
@@ -95,10 +96,9 @@ export default {
         board[index2] = React.cloneElement(board[index2], { children: temp })
       }    
     },
-    promotePawn(promotionType:string){
+    promotePawn(promotionType:string, e:any){
       promotionGridModel.current?.classList.add("hidden")
       chessboardGridModel.current?.classList.remove("disabled")
-      console.log(promotionType)
       for(let i = 0; i < piecesBoard.length; i++){
         if(board[i].props.children?.key.includes("WhitePawn") && board[i].key?.includes("8")){
           switch (promotionType) {
@@ -133,6 +133,14 @@ export default {
           }
         }
       }
+      LoadPieces(piecesBoard)
+      if(KingsUnderCheck()){
+        const arr = Array.from(chessboardGridModel.current?.children) as any[];
+        const kingDiv = arr.find(elem => elem.children[0]?.id.includes(KingUnderCheckKey))
+        kingDiv.style.boxShadow = 'inset 0 0 50px rgba(255, 0, 0, 0.45)';
+        kingDiv.style.outline = '3px solid rgba(255, 0, 0, 0.35)';
+        kingDiv.style.outlineOffset = '-3px';
+      } 
     }
 };
 function findEmptyField(): HTMLElement | null {

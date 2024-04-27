@@ -325,6 +325,7 @@ export class Knight implements ChessPiece {
 }
 
 export class Piece {
+    [x: string]: any;
     public passedTheMove: boolean;
     public piece: any;
     public board:any[];

@@ -1,7 +1,7 @@
 import React from "react";
 import { Pawn, Piece } from "./Pieces.tsx";
-import { LoadGrids, LoadPieces, board, gridsBoard, piecesBoard, horizontalAxis } from "./ChessBoard.tsx";
-import Essentials, { previousMovement, turn } from "./Essentials.tsx";
+import { LoadGrids, LoadPieces, board, gridsBoard, piecesBoard, horizontalAxis, chessboardGridModel } from "./ChessBoard.tsx";
+import Essentials, { KingUnderCheckKey, previousMovement, setKingUnderCheckKey, turn } from "./Essentials.tsx";
 import Prediction from "./Prediction.tsx";
 import Utils from "./Utils.tsx";
 
@@ -22,8 +22,8 @@ export default class Referee {
     public checkMove() {
         if (!this.movement[1].id.includes(turn)) {
             this.passedTheMove = false;
+            return
         }
-        console.log(this.piecesBoardPrediction)
         //checking if king is under attack
         let kingWhiteIndex = this.boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("WhiteKing"));
         let kingBlackIndex = this.boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
@@ -33,11 +33,13 @@ export default class Referee {
                 this.piecesBoardPrediction[i].piece.pieceElement?.key.includes("White")
                     && !(this.boardAfterMove[i].key == this.movement[2].id)) {
                     this.passedTheMove = false;
+                    return
                 }
                 if (this.piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == this.gridBoardPrediction[kingWhiteIndex].key) && turn == "White"  &&
                 this.piecesBoardPrediction[i].piece.pieceElement?.key.includes("Black")
                 && !(this.boardAfterMove[i].key == this.movement[2].id)) {
                     this.passedTheMove = false;
+                    return
                 }
             }
         }
@@ -105,7 +107,6 @@ export default class Referee {
                 Utils.alignPiece(rookChildElement, freeChildElement, freeDivElement)
                 Utils.replacePieces(rookChildElement, freeChildElement, rookDivElement, freeDivElement)
             }
-            console.log(board)
         }
     }
 }
@@ -137,7 +138,6 @@ export class Rules {
             }
         }
         if(rules.CastleAvailable()){
-            console.log(rules.CastleType)
             let kingWhiteIndex = board.findIndex(elem => elem.props?.children?.key.includes("WhiteKing"));
             let kingBlackIndex = board.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
             if(rules.CastleType.find(elem => elem.includes('LongBlack')) && !Essentials.Read()[0] && !Essentials.Read()[3]){
@@ -171,8 +171,6 @@ export class Rules {
         }
     }
     public EnPassantAvailable(){
-        console.log(previousMovement)
-        console.log(this.movement)
         try {
             if (previousMovement[4] === "DoubleSquarePawnMovement") {
                 if (previousMovement[3].id.charAt(5) == this.movement[2].id.charAt(5)) {
@@ -180,7 +178,6 @@ export class Rules {
                 }
             }
         } catch (error) {
-            console.error("Error in isEnPassant:", error);
         }
         return false;
     }
@@ -217,47 +214,57 @@ export class Rules {
                     }
             }
         } catch (error) {
-            console.error("Error in CastleAvailable:", error);
         }
         return bul
     }
     public PawnPromotion(){
         if(this.movement[0].piece.pieceElement?.key.includes("BlackPawn") && this.movement[3].id.includes("1")){
-            console.log("Black Pawn promotion!")
             this.BlackPromotion = true
             return true
         }
         if(this.movement[0].piece.pieceElement?.key.includes("WhitePawn") && this.movement[3].id.includes("8")){
-            console.log("White Pawn promotion!")
             this.BlackPromotion = false
             return true
         }
     }
-    public KingsUnderCheck(){
-        let boardAfterMove = Prediction.getBoardPrediction(this.movement)
-        let gridBoardPrediction = Prediction.getGridsPrediction(boardAfterMove)
-        let piecesBoardPrediction = Prediction.getPiecesPrediction(boardAfterMove, gridBoardPrediction)
-        let kingWhiteIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("WhiteKing"));
-        let kingBlackIndex = boardAfterMove.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
-        if (kingBlackIndex && kingWhiteIndex) {
-            for (let i = 0; i < boardAfterMove.length; i++) {
-                if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingBlackIndex].key) && turn == "Black" &&
-                piecesBoardPrediction[i].piece.pieceElement?.key.includes("White")
-                    && !(boardAfterMove[i].key == this.movement[2].id)) {
-                        this.KingUnderCheckKey = "BlackKing"
-                        return true
-                }
-                if (piecesBoardPrediction[i].piece?.legalMoves?.find(elem => elem.key == gridBoardPrediction[kingWhiteIndex].key) && turn == "White"  &&
-                piecesBoardPrediction[i].piece.pieceElement?.key.includes("Black")
-                && !(boardAfterMove[i].key == this.movement[2].id)) {
-                    this.KingUnderCheckKey = "WhiteKing"
-                    return true
+}
+export function KingsUnderCheck(){
+    let kingWhiteIndex = board.findIndex(elem => elem.props?.children?.key.includes("WhiteKing"));
+    let kingBlackIndex = board.findIndex(elem => elem.props?.children?.key.includes("BlackKing"));
+    let pieceAttackingBlackKing = piecesBoard.find(elem => elem.piece?.legalMoves?.find(elem => elem.key == gridsBoard[kingBlackIndex].key))
+    let pieceAttackingWhiteKing = piecesBoard.find(elem => elem.piece?.legalMoves?.find(elem => elem.key == gridsBoard[kingWhiteIndex].key))
+    if(pieceAttackingBlackKing && turn == "Black" && pieceAttackingBlackKing.piece.pieceElement?.key.includes("White")){
+        setKingUnderCheckKey("BlackKing");
+        return true
+    }
+    if(pieceAttackingWhiteKing && turn == "White" && pieceAttackingWhiteKing.piece.pieceElement?.key.includes("Black")){
+        setKingUnderCheckKey("WhiteKing");
+        return true
+    }
+    return false
+}
+export function KingsCheckmated(chessBoardArray): boolean {
+    const color = KingUnderCheckKey === "BlackKing" ? "Black" : KingUnderCheckKey === "WhiteKing" ? "White" : turn;
+    for (let i = 0; i < piecesBoard.length; i++) {
+        const piece = piecesBoard[i];
+        const pieceGrid = chessBoardArray[i];
+        const pieceGridChild = pieceGrid.children[0];
+        if (pieceGridChild.id.includes(color)) {
+            try{
+            const moves = piece.piece.legalMoves;
+            for (let j = 0; j < moves.length; j++) {
+                const move = moves[j];
+                const moveGrid = chessBoardArray.find(elem => elem.id === move.key);
+                if (moveGrid && !moveGrid.children[0].id.includes(color)) {
+                    const referee = new Referee([piece, pieceGridChild, pieceGrid, moveGrid, ""]);
+                    referee.checkMove();
+                    if (referee.passedTheMove) {
+                        return false;
+                    }
                 }
             }
+            } catch {continue}
         }
-        return false;
     }
-    public Checkmate(){
-        return this.KingsUnderCheck()
-    }
+    return true;
 }
