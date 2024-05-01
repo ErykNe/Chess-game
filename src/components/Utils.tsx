@@ -141,8 +141,20 @@ export default {
         kingDiv.style.outline = '3px solid rgba(255, 0, 0, 0.35)';
         kingDiv.style.outlineOffset = '-3px';
       } 
-    }
-};
+      const elemFocus = board.find(elem => elem.props.children?.key.includes("WhitePawn") || (elem.props.children?.key.includes("BlackPawn")))
+      const elemFocusId = elemFocus ? elemFocus.key : null; 
+      if (elemFocusId !== null) {
+        const element = document.getElementById(elemFocusId);
+        if (element) {
+          element.focus();
+        } else {
+          console.error(`Element with id '${elemFocusId}' not found.`);
+        }
+      } else {
+      console.error("Element id not found.");
+      }
+    },}
+      
 function findEmptyField(): HTMLElement | null {
     const hiddenPieces = document.querySelectorAll('.chessPiece[style*="display: none"]');
     const hiddenPiecesArray = Array.from(hiddenPieces);

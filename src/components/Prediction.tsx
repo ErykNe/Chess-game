@@ -5,14 +5,26 @@ import Essentials from "./Essentials.tsx";
 
 export default {
     getBoardPrediction: function getBoardPrediction(movement: any) {
-        let boardPrediction: any[] = board.map(item => ({ ...item })); // Deep copy of board
-        let index1 = board.findIndex(elem => elem.key === movement[3].id);
-        let index2 = board.findIndex(elem => elem.key === movement[2].id);
+        let boardPrediction: any[] = board.map(item => ({ ...item })); 
+        let index1 = board.findIndex(elem => elem.key === movement[2].id);//oldDiv
+        let index2 = board.findIndex(elem => elem.key === movement[3].id);//newDiv
+        
         if (index1 !== -1 && index2 !== -1) {
+            const newElementId = boardPrediction[index2].props?.children?.props?.id;
             const temp = boardPrediction[index1].props?.children;
-            boardPrediction[index1] = React.cloneElement(boardPrediction[index1], { children: boardPrediction[index2].props?.children });
-            boardPrediction[index2] = React.cloneElement(boardPrediction[index2], { children: temp });
+            
+            if (newElementId !== 'none') {
+                const emptyFieldIndex = board.find(elem => elem.props.children?.props?.id === 'none');
+                if (emptyFieldIndex) {
+                    boardPrediction[index1] = React.cloneElement(boardPrediction[index1], { children: emptyFieldIndex.props?.children });
+                    boardPrediction[index2] = React.cloneElement(boardPrediction[index2], { children: temp });
+                }
+            } else {
+                boardPrediction[index1] = React.cloneElement(boardPrediction[index1], { children: boardPrediction[index2].props?.children });
+                boardPrediction[index2] = React.cloneElement(boardPrediction[index2], { children: temp });
+            }
         }
+        console.log(boardPrediction)
         return boardPrediction;
     },
     
@@ -26,6 +38,7 @@ export default {
             }
             return null;
         });
+        console.log(piecesPrediction)
         return piecesPrediction;
     },
     

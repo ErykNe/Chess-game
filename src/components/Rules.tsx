@@ -124,13 +124,13 @@ export class Rules {
     }
     public adjustMoves(rules, newDiv){
         if(rules.EnPassantAvailable()){
-            if (previousMovement[3].id.charAt(5) == '5') {
+            if (previousMovement[3].id.charAt(5) == '5' && this.movement[1].id.includes("Pawn")) {
                 piecesBoard[piecesBoard.findIndex(elem => elem == rules.movement[0])].piece.legalMoves.push(board[(board.findIndex(elem => elem.key == previousMovement[3].id)) - 8])
                 if(newDiv.id == board[(board.findIndex(elem => elem.key == previousMovement[3].id)) - 8].key){
                     rules.EnPassantExecuted = true;
                 }
             }
-            if (previousMovement[3].id.charAt(5) == '4') {
+            if (previousMovement[3].id.charAt(5) == '4' && this.movement[1].id.includes("Pawn")) {
                 piecesBoard[piecesBoard.findIndex(elem => elem == rules.movement[0])].piece.legalMoves.push(board[(board.findIndex(elem => elem.key == previousMovement[3].id)) + 8])
                 if(newDiv.id == board[(board.findIndex(elem => elem.key == previousMovement[3].id)) + 8].key){
                     rules.EnPassantExecuted = true;
@@ -185,33 +185,34 @@ export class Rules {
         let bul = false
         try {
             if(this.movement[1].id == "WhiteKing" && !Essentials.Read[1]){
-                if((board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 1].props?.children?.key.includes("none")
+                if(!Essentials.Read[4] && ((board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 1].props?.children?.key.includes("none")
                 && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 2].props?.children?.key.includes("none")
-                && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none"))
-                && !Essentials.Read[4]){
+                && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none"))) 
+                && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 4].props?.children?.key.includes("WhiteRock")){
                     this.CastleType.push("LongWhite")
                     bul = true
                 }
-                if((board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 1].props?.children?.key.includes("none")
-                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")) && !Essentials.Read[5]){
+                if(!Essentials.Read[5] && ((board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 1].props?.children?.key.includes("none")
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")))
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 3].props?.children?.key.includes("WhiteRock")){
                     this.CastleType.push("ShortWhite")
                     bul = true                    
                 }
             }
             if(this.movement[1].id == "BlackKing" && !Essentials.Read[0]){
-                if((board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 1].props?.children?.key.includes("none")
-                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")
-                    )
-                    && !Essentials.Read[2]){
-                        this.CastleType.push("ShortBlack")
-                        bul = true
-                    }
-                    if(((board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 1].props?.children?.key.includes("none")
-                        && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 2].props?.children?.key.includes("none"))
-                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none")) && !Essentials.Read[3]){
-                        this.CastleType.push("LongBlack")
-                        bul = true                    
-                    }
+                if(!Essentials.Read[2] && ((board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 1].props?.children?.key.includes("none")
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 2].props?.children?.key.includes("none")
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 3].props?.children?.key.includes("none")))
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) - 4].props?.children?.key.includes("BlackRock")){
+                    this.CastleType.push("LongBlack")
+                    bul = true                    
+                }
+                if(!Essentials.Read[3] && ((board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 1].props?.children?.key.includes("none")
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 2].props?.children?.key.includes("none")))
+                    && board[(board.findIndex(elem => elem.key == this.movement[2].id)) + 3].props?.children?.key.includes("BlackRock")){
+                    this.CastleType.push("ShortBlack")
+                    bul = true
+                }
             }
         } catch (error) {
         }

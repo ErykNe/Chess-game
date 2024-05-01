@@ -142,15 +142,11 @@ export class Queen implements ChessPiece {
                 }
             } catch { }
         };
-
-        // Check diagonally in all four directions
         for (let deltaCol of [1, -1]) {
             for (let deltaRow of [1, -1]) {
                 checkAndPushMoves(deltaCol, deltaRow);
             }
         }
-
-        // Check horizontally and vertically
         for (let deltaCol of [1, 0, -1]) {
             for (let deltaRow of [1, 0, -1]) {
                 if (deltaCol !== 0 || deltaRow !== 0) {
@@ -201,15 +197,11 @@ export class King implements ChessPiece {
                 
             } catch { }
         };
-
-        // Check diagonally in all four directions
         for (let deltaCol of [1, -1]) {
             for (let deltaRow of [1, -1]) {
                 checkAndPushMoves(deltaCol, deltaRow);
             }
         }
-
-        // Check horizontally and vertically
         for (let deltaCol of [1, 0, -1]) {
             for (let deltaRow of [1, 0, -1]) {
                 if (deltaCol !== 0 || deltaRow !== 0) {
@@ -307,9 +299,7 @@ export class Knight implements ChessPiece {
                 if (nextSquareId === 'none' || nextSquareId === undefined || !nextSquareId.includes(color)) {
                     moves.push(nextSquare);
                 }
-            } catch (error) {
-                // Ignore out-of-bounds errors
-            }
+            } catch {}
         };
     
         for (let deltaCol of [-2, -1, 1, 2]) {

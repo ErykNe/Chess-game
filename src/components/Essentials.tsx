@@ -14,12 +14,9 @@ export function setKingUnderCheckKey(str:string){
 
 export default {
     Initialize: function Initialize(): void {
-        BlackKingMoved = false
-        WhiteKingMoved = false
-        BlackRook1Moved = false
-        BlackRook2Moved = false
-        WhiteRook1Moved = false
-        WhiteRook2Moved = false
+        BlackKingMoved = WhiteKingMoved = BlackRook1Moved = BlackRook2Moved = WhiteRook1Moved = WhiteRook2Moved = false;
+        turn = "White"
+        KingUnderCheckKey = ''
     },
     Read: function Read(): boolean[] {
         let arr: boolean[] = [];
@@ -27,35 +24,23 @@ export default {
         return arr
     },
     UpdateAccordingly: function Update(childElement:HTMLElement, secondChildElement:HTMLElement, oldDiv:HTMLElement, newDiv:HTMLElement, piece:Piece): void {
-        if(newDiv.id.includes("5") || newDiv.id.includes("4")){
-            previousMovement = [piece, childElement, oldDiv, newDiv, "DoubleSquarePawnMovement"];
-        } else {
-            previousMovement = [piece, childElement, oldDiv, newDiv, ""];
-        }
-        if(childElement.id.includes("White")){
-            turn = "Black";
-        } else {
-            turn = "White";
-        }
+        previousMovement = (newDiv.id.includes("5") || newDiv.id.includes("4")) ? [piece, childElement, oldDiv, newDiv, "DoubleSquarePawnMovement"] : [piece, childElement, oldDiv, newDiv, ""];
+        turn = childElement.id.includes("White") ? "Black" : "White";
         switch(previousMovement[1].id){
             case "WhiteKing":
                 WhiteKingMoved = true
                 break;
             case "BlackKing":
                 BlackKingMoved = true
-                break;                      
+                break;              
         }
-        if(previousMovement[2].id.includes("h1")){
+        if(previousMovement[2].id.includes("h1"))
             WhiteRook2Moved = true;   
-        }
-        if(previousMovement[2].id.includes("a1")){
+        if(previousMovement[2].id.includes("a1"))
             WhiteRook1Moved = true 
-        }
-        if(previousMovement[2].id.includes("h8")){
-            BlackRook2Moved = true    
-        }
-        if(previousMovement[2].id.includes("a8")){
-            BlackRook1Moved = true 
-        }
+        if(previousMovement[2].id.includes("h8"))
+            BlackRook1Moved = true    
+        if(previousMovement[2].id.includes("a8"))
+            BlackRook2Moved = true 
     }
 }

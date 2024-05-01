@@ -1,4 +1,4 @@
-import { changePiecePosition, chessboardGridModel, endGameGridModel, gameWinner } from "./ChessBoard.tsx"
+import { changePiecePosition, checkGameRules, chessboardGridModel, endGameGridModel, gameWinner } from "./ChessBoard.tsx"
 import Utils from "./Utils.tsx"
 import React from "react"
 import './ChessBoard.css';
@@ -43,7 +43,6 @@ export default{
           if (pushedGridsElements.some(element => element.className == "pushedGrids") && piece.className == "chessPiece") {
             changePiecePosition(e)
             PieceActive = null;
-            
           }  else if (piece.className == "chessPiece") {
             Utils.movePieceBack(piece)
           }
