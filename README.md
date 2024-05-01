@@ -1,4 +1,5 @@
-# **Important!**
+# **Chess in ReactJS**
+## **Important!**
 #### This is a React project that requires a host to run
 #### I do not have any rights to the graphics elements used in this project
 ####   
